@@ -1,4 +1,4 @@
-﻿export async function onRequestGet(context) {
+export async function onRequestGet(context) {
   try {
     const url = new URL(context.request.url);
     const limitRaw = Number(url.searchParams.get("limit") || "50");
@@ -13,7 +13,8 @@
         customer_phone,
         customer_email,
         customer_memo,
-        image_file_name
+        image_file_name,
+        option_json
       FROM orders
       ORDER BY id DESC
       LIMIT ?

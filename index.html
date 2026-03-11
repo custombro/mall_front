@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -256,6 +256,47 @@
           <label>추가 요청사항
             <textarea id="customerMemo" rows="6" placeholder="포장 / 납기 / 색상 / 후가공 요청사항"></textarea>
           </label>
+
+          <div class="policy-panel" id="policyPanel">
+            <div class="policy-head">
+              <strong>정책 검증 v1</strong>
+              <span id="policyVerdict" class="policy-badge review">확인 필요</span>
+            </div>
+
+            <div class="policy-grid">
+              <label>권리 상태
+                <select id="designRights">
+                  <option value="original">순수 창작 / 본인 저작물</option>
+                  <option value="licensed">사용 허가·상업 이용 권리 보유</option>
+                  <option value="personal_fanart">2차창작·팬아트·브랜드 포함 (소장/제작용)</option>
+                  <option value="unknown">권리 상태 불명</option>
+                </select>
+              </label>
+
+              <label>판매 의도
+                <select id="saleIntent">
+                  <option value="make_only">제작만 요청</option>
+                  <option value="sell_on_site">사이트 판매 희망</option>
+                </select>
+              </label>
+
+              <label>내용 분류
+                <select id="contentSafety">
+                  <option value="safe">일반 콘텐츠</option>
+                  <option value="restricted">성인/도박/혐오/위험 가능성 있음</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="inline policy-check">
+              <input type="checkbox" id="policyAgree" />
+              업로드한 디자인의 권리 상태와 정책을 확인했습니다.
+            </label>
+
+            <div class="policy-reason" id="policyReason">
+              업로드 파일명 + 권리 상태 + 판매 의도를 기준으로 제작 가능 범위를 안내합니다.
+            </div>
+          </div>
 
           <div class="order-actions">
             <button class="btn primary full" id="refreshOrderSummary" type="button">주문요약 새로 만들기</button>

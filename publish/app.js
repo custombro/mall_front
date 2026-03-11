@@ -1,4 +1,4 @@
-﻿const ORDER_EMAIL = "custombro365@gmail.com";
+const ORDER_EMAIL = "custombro365@gmail.com";
 
 function won(v){ return v.toLocaleString("ko-KR") + "원"; }
 function safe(v){ return (v ?? "").toString().trim(); }
@@ -330,7 +330,12 @@ submitOrderServer.addEventListener("click", async () => {
     customer_memo: safe(customerMemo.value),
     order_summary: summary,
     option_json: optionPayload,
-    image_file_name: product === "keyring" ? keyringFileName : popFileName
+    image_file_name: product === "keyring" ? keyringFileName : popFileName,
+    policy_verdict: getPolicyState().verdict,
+    policy_status_label: getPolicyState().label,
+    policy_reason: getPolicyState().reason,
+    rights_declared: getPolicyState().rightsKey,
+    sale_intent: getPolicyState().saleKey
   };
 
   if(!payload.customer_name || !payload.customer_phone){
@@ -338,6 +343,15 @@ submitOrderServer.addEventListener("click", async () => {
     return;
   }
 
+  const policyState = getPolicyState();
+  if(!policyState.confirmed){
+    alert("정책 확인 체크를 완료해 주세요.");
+    return;
+  }
+  if(policyState.verdict === "blocked"){
+    alert("현재 정책상 제작 불가 판정입니다. 정책 검증 내용을 확인해 주세요.");
+    return;
+  }
   orderServerStatus.textContent = "서버 저장 중...";
   try{
     const res = await fetch("/api/orders", {
@@ -434,4 +448,138 @@ clearReorderPrefill?.addEventListener("click", clearReorderPrefillState);
 updateKeyring();
 updatePop();
 loadReorderPrefill();
+makeSummary();
+
+/* CB_POLICY_V1 */
+const designRights = document.getElementById("designRights");
+const saleIntent = document.getElementById("saleIntent");
+const contentSafety = document.getElementById("contentSafety");
+const policyAgree = document.getElementById("policyAgree");
+const policyVerdict = document.getElementById("policyVerdict");
+const policyReason = document.getElementById("policyReason");
+
+function policyRightsLabel(v){
+  return ({
+    original:"순수 창작 / 본인 저작물",
+    licensed:"사용 허가·상업 이용 권리 보유",
+    personal_fanart:"2차창작·팬아트·브랜드 포함",
+    unknown:"권리 상태 불명"
+  })[v] || "미선택";
+}
+function policySaleLabel(v){
+  return ({
+    make_only:"제작만 요청",
+    sell_on_site:"사이트 판매 희망"
+  })[v] || "미선택";
+}
+function policyContentLabel(v){
+  return ({
+    safe:"일반 콘텐츠",
+    restricted:"성인/도박/혐오/위험 가능성 있음"
+  })[v] || "미선택";
+}
+function currentUploadName(){
+  const product = orderProduct?.value || "keyring";
+  return product === "keyring" ? (keyringFileName || "") : (popFileName || "");
+}
+function detectPolicyHints(fileName){
+  const lower = (fileName || "").toLowerCase();
+  const blocked = ["casino","bet","slot","바카라","슬롯","도박","porn","adult","sex","19금","마약","weapon","gun"];
+  const limited = ["pokemon","marvel","disney","sanrio","짱구","포켓몬","디즈니","마블","산리오","bts","kakao","라인프렌즈"];
+  const blockedHit = blocked.find(k => lower.includes(k));
+  if(blockedHit){ return { mode:"blocked", hit:blockedHit }; }
+  const limitedHit = limited.find(k => lower.includes(k));
+  if(limitedHit){ return { mode:"limited", hit:limitedHit }; }
+  return { mode:"none", hit:"" };
+}
+function getPolicyState(){
+  const rightsKey = designRights?.value || "original";
+  const saleKey = saleIntent?.value || "make_only";
+  const contentKey = contentSafety?.value || "safe";
+  const confirmed = !!policyAgree?.checked;
+  const fileName = currentUploadName();
+  const hint = detectPolicyHints(fileName);
+
+  let verdict = "review";
+  let label = "확인 필요";
+  let reason = "권리 상태와 정책 확인 체크를 완료하면 제작 가능 범위를 안내합니다.";
+
+  if(contentKey === "restricted" || hint.mode === "blocked"){
+    verdict = "blocked";
+    label = "제작 불가";
+    reason = hint.hit
+      ? `업로드 파일명에서 '${hint.hit}' 관련 제한 키워드가 감지되었습니다. 현재 정책상 제작 불가로 처리합니다.`
+      : "성인·도박·혐오·위험 가능성으로 표시되어 현재 정책상 제작 불가입니다.";
+  } else if(rightsKey === "original" || rightsKey === "licensed"){
+    if(hint.mode === "limited"){
+      verdict = "limited";
+      label = "제작 가능 / 판매 불가";
+      reason = `파일명에서 '${hint.hit}' 관련 제3자 IP 가능성이 감지되어 사이트 판매는 막고 제작만 허용합니다.`;
+    } else if(saleKey === "sell_on_site"){
+      verdict = "allowed";
+      label = "제작/판매 가능";
+      reason = "순수 창작 또는 사용 권리 보유로 확인되어 사이트 판매 가능 후보로 분류했습니다.";
+    } else {
+      verdict = "allowed";
+      label = "제작 가능";
+      reason = "권리 상태가 확인되어 제작용 주문으로 접수 가능합니다.";
+    }
+  } else {
+    verdict = "limited";
+    label = "제작 가능 / 판매 불가";
+    reason = rightsKey === "unknown"
+      ? "권리 상태가 불명이라 사이트 판매는 막고 제작만 허용합니다. 필요 시 별도 확인이 필요합니다."
+      : "2차창작·팬아트·브랜드 포함 데이터는 소장/제작용으로만 접수하고 사이트 판매는 불가합니다.";
+  }
+
+  if(!confirmed){
+    verdict = "review";
+    label = "확인 필요";
+    reason = "권리 상태와 정책 확인 체크를 완료해야 주문 접수가 가능합니다.";
+  }
+
+  return {
+    verdict,
+    label,
+    reason,
+    confirmed,
+    rightsKey,
+    saleKey,
+    contentKey,
+    fileName,
+    hint
+  };
+}
+function renderPolicyState(){
+  if(!policyVerdict || !policyReason){ return; }
+  const p = getPolicyState();
+  policyVerdict.textContent = p.label;
+  policyVerdict.className = `policy-badge ${p.verdict}`;
+  policyReason.textContent =
+    `${p.reason} / 권리 상태: ${policyRightsLabel(p.rightsKey)} / 판매 의도: ${policySaleLabel(p.saleKey)} / 내용 분류: ${policyContentLabel(p.contentKey)}${p.fileName ? ` / 파일: ${p.fileName}` : ""}`;
+}
+if(typeof makeSummary === "function"){
+  const __cbOriginalMakeSummary = makeSummary;
+  makeSummary = function(){
+    const base = __cbOriginalMakeSummary();
+    const p = getPolicyState();
+    const extended = [
+      base,
+      "",
+      "[정책검증]",
+      `판정: ${p.label}`,
+      `권리상태: ${policyRightsLabel(p.rightsKey)}`,
+      `판매의도: ${policySaleLabel(p.saleKey)}`,
+      `내용분류: ${policyContentLabel(p.contentKey)}`,
+      `사유: ${p.reason}`
+    ].join("\n");
+    if(orderSummary){ orderSummary.value = extended; }
+    return extended;
+  };
+}
+[designRights,saleIntent,contentSafety,policyAgree,orderProduct,keyringFile,popFile].forEach(el => {
+  if(el){ el.addEventListener("input", () => { renderPolicyState(); makeSummary(); }); }
+  if(el){ el.addEventListener("change", () => { renderPolicyState(); makeSummary(); }); }
+});
+renderPolicyState();
 makeSummary();

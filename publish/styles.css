@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --black:#0f1115;
   --gray-100:#f9fafb;
   --gray-200:#eef1f6;
@@ -466,3 +466,68 @@ input,select,textarea{padding:12px 14px;border:1px solid var(--gray-300);border-
   .hud-panel{right:12px;left:12px;width:auto;padding:18px}
 }
 
+
+/* CB_POLICY_V1 */
+.policy-panel{
+  margin-top:8px;
+  padding:16px;
+  border:1px solid var(--gray-200,#dbe2ea);
+  border-radius:16px;
+  background:linear-gradient(180deg,#fbfcff 0%,#f4f8ff 100%);
+}
+.policy-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.policy-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:118px;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:0.02em;
+  border:1px solid transparent;
+}
+.policy-badge.allowed{background:#e8fff0;color:#0f8a43;border-color:#9fdfb9}
+.policy-badge.limited{background:#fff7df;color:#9a6700;border-color:#efd28d}
+.policy-badge.blocked{background:#ffe7e7;color:#d02b20;border-color:#f1aaaa}
+.policy-badge.review{background:#eef2ff;color:#3558d4;border-color:#bfd0ff}
+.policy-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.policy-check{margin-top:10px}
+.policy-reason{
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fff;
+  border:1px solid var(--gray-200,#dbe2ea);
+  color:var(--gray-600,#4b5563);
+  font-size:13px;
+  line-height:1.55;
+}
+.admin-policy-cell{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  border:1px solid transparent;
+}
+.admin-policy-cell.allowed{background:#e8fff0;color:#0f8a43;border-color:#9fdfb9}
+.admin-policy-cell.limited{background:#fff7df;color:#9a6700;border-color:#efd28d}
+.admin-policy-cell.blocked{background:#ffe7e7;color:#d02b20;border-color:#f1aaaa}
+.admin-policy-cell.review{background:#eef2ff;color:#3558d4;border-color:#bfd0ff}
+@media (max-width:900px){
+  .policy-grid{grid-template-columns:1fr}
+}

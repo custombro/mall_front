@@ -1,4 +1,4 @@
-﻿export async function onRequestOptions() {
+export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
@@ -32,7 +32,16 @@ export async function onRequestPost(context) {
     const customerEmail = (body.customer_email ?? "").toString();
     const customerMemo  = (body.customer_memo ?? "").toString();
     const orderSummary  = (body.order_summary ?? "").toString();
-    const optionJson    = JSON.stringify(body.option_json ?? {});
+    const optionPayload = body.option_json ?? {};
+    const policyPayload = {
+      verdict: (body.policy_verdict ?? "").toString(),
+      label: (body.policy_status_label ?? "").toString(),
+      reason: (body.policy_reason ?? "").toString(),
+      rights_declared: (body.rights_declared ?? "").toString(),
+      sale_intent: (body.sale_intent ?? "").toString()
+    };
+    optionPayload.meta = { ...(optionPayload.meta ?? {}), policy: policyPayload };
+    const optionJson    = JSON.stringify(optionPayload);
     const imageFileName = (body.image_file_name ?? "").toString();
     const sourceUrl     = context.request.url;
 
