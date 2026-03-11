@@ -272,8 +272,20 @@ submitOrderServer.addEventListener("click", async () => {
       throw new Error(data?.error || "SAVE_FAILED");
     }
 
-    orderServerStatus.textContent = `서버 주문번호: ${data.order_id ?? "저장완료"}`;
-    alert(`주문이 저장되었습니다. 주문번호: ${data.order_id ?? "저장완료"}`);
+    const orderId = data.order_id ?? "";
+    orderServerStatus.textContent = `서버 주문번호: ${orderId || "저장완료"}`;
+
+    const receipt = {
+      order_id: orderId,
+      product_type: product,
+      customer_name: payload.customer_name,
+      customer_phone: payload.customer_phone,
+      customer_email: payload.customer_email,
+      created_at: getNow()
+    };
+    localStorage.setItem("custombro_last_receipt", JSON.stringify(receipt));
+
+    window.location.href = `./order-complete.html?order_id=${encodeURIComponent(orderId)}&product=${encodeURIComponent(product)}`;
   }catch(err){
     orderServerStatus.textContent = "서버 저장 실패";
     alert("서버 저장 실패: " + String(err.message || err));

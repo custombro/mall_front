@@ -1,0 +1,69 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주문접수 완료 | CustomBro</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CUSTOMBRO MALL</div>
+    <div class="sub">주문접수 완료</div>
+  </header>
+
+  <main class="wrap">
+    <section class="receipt-box">
+      <h1>주문이 접수되었습니다</h1>
+      <p class="receipt-note">현재 단계는 결제 전 주문접수 MVP입니다. 아래 주문번호로 확인하면 됩니다.</p>
+
+      <div class="receipt-grid">
+        <div class="receipt-card">
+          <div>주문번호</div>
+          <div id="receiptOrderId" class="receipt-id">-</div>
+        </div>
+        <div class="receipt-card">
+          <div>상품유형</div>
+          <div id="receiptProduct" class="receipt-id" style="font-size:22px">-</div>
+        </div>
+      </div>
+
+      <div class="receipt-grid">
+        <div class="receipt-card">
+          <div>고객명</div>
+          <div id="receiptName">-</div>
+        </div>
+        <div class="receipt-card">
+          <div>연락처</div>
+          <div id="receiptPhone">-</div>
+        </div>
+      </div>
+
+      <div class="hero-actions" style="margin-top:20px">
+        <a class="btn primary" href="./index.html">추가 주문하기</a>
+        <a class="btn" href="mailto:custombro365@gmail.com">문의 메일 보내기</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const qs = new URLSearchParams(location.search);
+    const orderId = qs.get("order_id") || "-";
+    const product = qs.get("product") || "-";
+    let receipt = {};
+    try{
+      receipt = JSON.parse(localStorage.getItem("custombro_last_receipt") || "{}");
+    }catch(e){ receipt = {}; }
+
+    const productMap = {
+      keyring: "아크릴 키링",
+      pop: "아크릴 POP 진열대"
+    };
+
+    document.getElementById("receiptOrderId").textContent = orderId;
+    document.getElementById("receiptProduct").textContent = productMap[product] || product || "-";
+    document.getElementById("receiptName").textContent = receipt.customer_name || "-";
+    document.getElementById("receiptPhone").textContent = receipt.customer_phone || "-";
+  </script>
+</body>
+</html>

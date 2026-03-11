@@ -8,17 +8,17 @@ body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#f6f7fb;col
 .hero h1{margin:0 0 10px;font-size:32px}
 .hero p{margin:0 0 16px;color:#555}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
-.btn{display:inline-block;padding:12px 18px;border-radius:12px;border:1px solid #111;color:#111;text-decoration:none;background:#fff;cursor:pointer}
+.btn{display:inline-block;padding:12px 18px;border-radius:12px;border:1px solid #111;color:#111;text-decoration:none;background:#fff;cursor:pointer;text-align:center}
 .btn.primary{background:#111;color:#fff}
 .btn.ghost{background:#f3f4f6}
 .btn.full{width:100%}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px}
-.card,.builder,.order-box{background:#fff;border:1px solid #e5e7eb;border-radius:20px}
+.card,.builder,.order-box,.receipt-box{background:#fff;border:1px solid #e5e7eb;border-radius:20px}
 .card{padding:20px}
 .builder{display:grid;grid-template-columns:360px 1fr;gap:24px;padding:24px;margin-bottom:20px}
-.order-box{padding:24px;margin-bottom:20px}
-.order-head h3{margin:0 0 8px}
-.order-head p{margin:0 0 18px;color:#666}
+.order-box,.receipt-box{padding:24px;margin-bottom:20px}
+.order-head h3,.receipt-box h1{margin:0 0 8px}
+.order-head p,.receipt-note{margin:0 0 18px;color:#666}
 .order-grid{display:grid;grid-template-columns:360px 1fr;gap:24px}
 .panel{display:flex;flex-direction:column;gap:12px}
 .panel h3{margin:0 0 8px}
@@ -43,7 +43,10 @@ input,select,textarea{padding:10px 12px;border:1px solid #cfd4dc;border-radius:1
 .cta-stack{display:flex;flex-direction:column;gap:10px}
 .summary-box{width:100%;min-height:360px;background:#fff}
 .summary-note{font-size:13px;color:#666;line-height:1.5}
+.receipt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.receipt-card{border:1px solid #e5e7eb;border-radius:16px;padding:18px;background:#fafafa}
+.receipt-id{font-size:28px;font-weight:800}
 @media (max-width:900px){
   .cards{grid-template-columns:1fr}
-  .builder,.order-grid{grid-template-columns:1fr}
+  .builder,.order-grid,.receipt-grid{grid-template-columns:1fr}
 }
