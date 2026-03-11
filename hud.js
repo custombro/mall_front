@@ -119,23 +119,29 @@
         <p>STATUS HUD</p>
         <button type="button" class="hud-close" aria-label="상태창 닫기">✕</button>
       </header>
-      <div class="hud-status-chip">
-        <strong>${escapeHtml(data.status?.state || "상태 미확인")}</strong>
-        <span>${escapeHtml(data.status?.detail || "")}</span>
-      </div>
-      <div class="hud-section">
-        <h3>내 작업</h3>
-        <div class="hud-grid">
-          ${tasksMarkup}
+      <div class="hud-body">
+        <div class="hud-col primary">
+          <div class="hud-status-chip">
+            <strong>${escapeHtml(data.status?.state || "상태 미확인")}</strong>
+            <span>${escapeHtml(data.status?.detail || "")}</span>
+          </div>
+          <div class="hud-section">
+            <h3>내 작업</h3>
+            <div class="hud-grid">
+              ${tasksMarkup}
+            </div>
+          </div>
+        </div>
+        <div class="hud-col secondary">
+          <div class="hud-section">
+            <h3>도움</h3>
+            <div class="hud-links">
+              ${linksMarkup}
+            </div>
+          </div>
+          <p class="hud-note">${escapeHtml(data.notice || "")}</p>
         </div>
       </div>
-      <div class="hud-section">
-        <h3>도움</h3>
-        <div class="hud-links">
-          ${linksMarkup}
-        </div>
-      </div>
-      <p class="hud-note">${escapeHtml(data.notice || "")}</p>
     `;
   }
 
