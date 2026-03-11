@@ -62,7 +62,7 @@
           <input type="number" id="keyringQty" min="1" value="1" />
         </label>
         <div class="price" id="keyringPrice">예상가: 4,500원</div>
-        <button class="btn primary full" id="useKeyringForOrder" type="button">이 설정으로 주문요청서 채우기</button>
+        <button class="btn primary full" id="useKeyringForOrder" type="button">이 설정으로 주문서 채우기</button>
       </div>
 
       <div class="preview">
@@ -102,7 +102,7 @@
           <input type="number" id="popQty" min="1" value="1" />
         </label>
         <div class="price" id="popPrice">예상가: 12,000원</div>
-        <button class="btn primary full" id="usePopForOrder" type="button">이 설정으로 주문요청서 채우기</button>
+        <button class="btn primary full" id="usePopForOrder" type="button">이 설정으로 주문서 채우기</button>
       </div>
 
       <div class="preview">
@@ -119,7 +119,7 @@
     <section id="order" class="order-box">
       <div class="order-head">
         <h3>주문요청</h3>
-        <p>현재는 주문요약 전송형 MVP입니다. 이미지 원본 자동 첨부/결제는 다음 단계에서 붙입니다.</p>
+        <p>이제 서버 DB 저장까지 연결된 MVP입니다. 결제는 다음 단계에서 붙입니다.</p>
       </div>
 
       <div class="order-grid">
@@ -152,16 +152,14 @@
             <button class="btn full" id="copyOrderSummary" type="button">주문요약 복사</button>
             <button class="btn full" id="downloadOrderTxt" type="button">주문서 TXT 저장</button>
             <button class="btn full" id="sendOrderEmail" type="button">이메일로 주문요청</button>
+            <button class="btn primary full" id="submitOrderServer" type="button">서버에 주문접수</button>
           </div>
         </div>
 
         <div class="preview">
           <div class="preview-title">주문요약</div>
           <textarea id="orderSummary" class="summary-box" rows="18" readonly></textarea>
-          <div class="summary-note">
-            이미지 원본 파일은 현재 브라우저에만 있으며 자동 전송되지 않습니다.
-            주문요약 전송 후 원본 파일은 회신 메일 또는 별도 채널로 전달하는 방식입니다.
-          </div>
+          <div id="orderServerStatus" class="summary-note">서버 주문번호: 아직 없음</div>
         </div>
       </div>
     </section>

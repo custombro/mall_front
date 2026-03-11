@@ -1,0 +1,13 @@
+﻿{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "custombro-mall-order-v1",
+  "compatibility_date": "2026-03-11",
+  "pages_build_output_dir": "./publish",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "custombro-mall-order-db",
+      "database_id": "1cfc0a52-078b-4dc6-9811-953c6265a51f"
+    }
+  ]
+}

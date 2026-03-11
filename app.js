@@ -118,10 +118,12 @@ const customerPhone = document.getElementById("customerPhone");
 const customerEmail = document.getElementById("customerEmail");
 const customerMemo = document.getElementById("customerMemo");
 const orderSummary = document.getElementById("orderSummary");
+const orderServerStatus = document.getElementById("orderServerStatus");
 const refreshOrderSummary = document.getElementById("refreshOrderSummary");
 const copyOrderSummary = document.getElementById("copyOrderSummary");
 const downloadOrderTxt = document.getElementById("downloadOrderTxt");
 const sendOrderEmail = document.getElementById("sendOrderEmail");
+const submitOrderServer = document.getElementById("submitOrderServer");
 const useKeyringForOrder = document.getElementById("useKeyringForOrder");
 const usePopForOrder = document.getElementById("usePopForOrder");
 
@@ -154,11 +156,7 @@ function makeSummary(){
       `예상가: ${won(s.total)}`,
       "",
       "[추가요청]",
-      memo || "(없음)",
-      "",
-      "[안내]",
-      "현재 버전은 이미지 원본 자동 첨부/결제가 아직 연결되지 않았습니다.",
-      "주문요약 전송 후 원본 파일은 회신 메일 또는 별도 채널로 전달해 주세요."
+      memo || "(없음)"
     ].join("\n");
   } else {
     const s = getPopState();
@@ -181,14 +179,9 @@ function makeSummary(){
       `예상가: ${won(s.total)}`,
       "",
       "[추가요청]",
-      memo || "(없음)",
-      "",
-      "[안내]",
-      "현재 버전은 이미지 원본 자동 첨부/결제가 아직 연결되지 않았습니다.",
-      "주문요약 전송 후 원본 파일은 회신 메일 또는 별도 채널로 전달해 주세요."
+      memo || "(없음)"
     ].join("\n");
   }
-
   orderSummary.value = body;
   return body;
 }
@@ -245,6 +238,46 @@ sendOrderEmail.addEventListener("click", () => {
     : "[CustomBro] 아크릴 POP 진열대 주문요청";
   const href = `mailto:${ORDER_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
   window.location.href = href;
+});
+
+submitOrderServer.addEventListener("click", async () => {
+  const summary = makeSummary();
+  const product = orderProduct.value;
+  const payload = {
+    product_type: product,
+    customer_name: safe(customerName.value),
+    customer_phone: safe(customerPhone.value),
+    customer_email: safe(customerEmail.value),
+    customer_memo: safe(customerMemo.value),
+    order_summary: summary,
+    option_json: product === "keyring" ? getKeyringState() : getPopState(),
+    image_file_name: product === "keyring" ? keyringFileName : popFileName
+  };
+
+  if(!payload.customer_name || !payload.customer_phone){
+    alert("이름과 연락처를 입력해 주세요.");
+    return;
+  }
+
+  orderServerStatus.textContent = "서버 저장 중...";
+  try{
+    const res = await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if(!res.ok || !data.ok){
+      throw new Error(data?.error || "SAVE_FAILED");
+    }
+
+    orderServerStatus.textContent = `서버 주문번호: ${data.order_id ?? "저장완료"}`;
+    alert(`주문이 저장되었습니다. 주문번호: ${data.order_id ?? "저장완료"}`);
+  }catch(err){
+    orderServerStatus.textContent = "서버 저장 실패";
+    alert("서버 저장 실패: " + String(err.message || err));
+  }
 });
 
 useKeyringForOrder.addEventListener("click", fillOrderFromKeyring);
