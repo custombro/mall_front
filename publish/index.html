@@ -19,6 +19,7 @@
       <a href="#keyring">키링</a>
       <a href="#pop">POP 진열대</a>
       <a href="#order">주문요청</a>
+      <a href="/drawer.html">보관함</a>
       <a href="/admin-orders.html" class="admin-link">주문관리</a>
     </nav>
     <a href="#order" class="top-cta">빠른 주문</a>
@@ -48,6 +49,7 @@
           <a href="#keyring" class="btn primary">키링 커스터마이즈</a>
           <a href="#pop" class="btn secondary">POP 진열대 살펴보기</a>
           <a href="#order" class="btn ghost">바로 주문접수</a>
+          <a href="./drawer.html" class="btn ghost">내 보관함 열기</a>
         </div>
       </div>
       <div class="hero-visual">
@@ -217,6 +219,14 @@
         </div>
       </div>
 
+      <div class="reorder-banner" id="reorderBanner" hidden>
+        <div>
+          <strong id="reorderBannerTitle">재주문 모드</strong>
+          <p id="reorderBannerDetail">보관함에서 불러온 주문이 적용되었습니다.</p>
+        </div>
+        <button class="btn ghost" id="clearReorderPrefill" type="button">재주문 해제</button>
+      </div>
+
       <div class="order-grid">
         <div class="panel">
           <label>주문 상품
@@ -224,6 +234,10 @@
               <option value="keyring">아크릴 키링</option>
               <option value="pop">아크릴 POP 진열대</option>
             </select>
+          </label>
+
+          <label>주문명 / 프로젝트명
+            <input type="text" id="orderLabel" placeholder="예: 브랜드 런칭 키링 50세트" />
           </label>
 
           <div class="field-row">
@@ -258,6 +272,7 @@
           <div id="orderServerStatus" class="summary-note">서버 주문번호: 아직 없음</div>
           <div class="order-help">
             <p>TIP. 주문요약은 고객 커뮤니케이션에 바로 사용할 수 있도록 TXT로 저장하거나 복사할 수 있습니다.</p>
+            <p>기존 주문은 상단 메뉴의 보관함에서 주문번호 또는 이름+연락처로 다시 불러와 재주문할 수 있습니다.</p>
             <p>관리자 페이지에서 접수된 주문을 즉시 확인할 수 있습니다.</p>
           </div>
         </div>

@@ -1,0 +1,65 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보관함 · 재주문 | CustomBro Mall</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-block">
+      <div class="logo-chip">CB</div>
+      <div>
+        <div class="brand">CustomBro Shop</div>
+        <p class="brand-sub">보관함 · 재주문</p>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="./index.html#keyring">키링</a>
+      <a href="./index.html#pop">POP 진열대</a>
+      <a href="./index.html#order">주문요청</a>
+      <a href="./drawer.html">보관함</a>
+      <a href="/admin-orders.html" class="admin-link">주문관리</a>
+    </nav>
+    <a href="./index.html#order" class="top-cta">새 주문</a>
+  </header>
+
+  <main class="wrap">
+    <section class="drawer-hero">
+      <p class="eyebrow">DRAWER</p>
+      <h1>내 주문 보관함</h1>
+      <p>주문번호 또는 이름+연락처로 이전 주문을 불러오고, 같은 사양 또는 수정 재주문을 바로 진행할 수 있습니다.</p>
+    </section>
+
+    <section class="drawer-search">
+      <form id="drawerSearchForm" class="drawer-form">
+        <div>
+          <label>주문번호로 조회
+            <input type="number" id="searchOrderId" placeholder="예: 128" min="1" />
+          </label>
+        </div>
+        <div>
+          <label>고객명
+            <input type="text" id="searchName" placeholder="이름" />
+          </label>
+        </div>
+        <div>
+          <label>연락처
+            <input type="text" id="searchPhone" placeholder="010-0000-0000" />
+          </label>
+        </div>
+        <div class="full-row" style="display:flex;gap:12px">
+          <button class="btn primary" type="submit">주문 검색</button>
+          <button class="btn ghost" type="button" id="resetSearch">초기화</button>
+        </div>
+      </form>
+      <p class="drawer-status" id="drawerStatus">주문번호 또는 이름+연락처(둘 다) 중 하나로 조회할 수 있습니다.</p>
+    </section>
+
+    <section id="drawerResults" class="drawer-results"></section>
+  </main>
+
+  <script src="./drawer.js"></script>
+</body>
+</html>
