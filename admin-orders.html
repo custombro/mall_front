@@ -1,0 +1,125 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 주문조회 | CustomBro</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    .admin-box{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:24px}
+    .admin-tools{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}
+    .admin-table-wrap{overflow:auto;border:1px solid #e5e7eb;border-radius:16px;background:#fff}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 10px;border-bottom:1px solid #eee;vertical-align:top;text-align:left;white-space:nowrap}
+    th{background:#fafafa;font-weight:700}
+    .memo{white-space:pre-wrap;min-width:220px}
+    .muted{color:#666}
+    .status{padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CUSTOMBRO ADMIN</div>
+    <div class="sub">임시 주문조회 화면</div>
+  </header>
+
+  <main class="wrap">
+    <section class="admin-box">
+      <h1 style="margin-top:0">주문조회</h1>
+      <p class="muted">현재는 최신 주문 조회용 임시 관리자 화면입니다.</p>
+
+      <div class="admin-tools">
+        <button class="btn primary" id="refreshBtn" type="button">새로고침</button>
+        <button class="btn" id="copyJsonBtn" type="button">JSON 복사</button>
+        <a class="btn" href="./index.html">쇼핑몰로 이동</a>
+      </div>
+
+      <div id="statusBox" class="status">불러오는 중...</div>
+
+      <div class="admin-table-wrap" style="margin-top:16px">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>접수시각</th>
+              <th>상품</th>
+              <th>고객명</th>
+              <th>연락처</th>
+              <th>이메일</th>
+              <th>파일명</th>
+              <th>추가요청</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr><td colspan="8">불러오는 중...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let lastData = null;
+
+    function esc(v){
+      return (v ?? "").toString()
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;");
+    }
+
+    async function loadOrders(){
+      const statusBox = document.getElementById("statusBox");
+      const tbody = document.getElementById("ordersBody");
+      statusBox.textContent = "불러오는 중...";
+      tbody.innerHTML = '<tr><td colspan="8">불러오는 중...</td></tr>';
+
+      try{
+        const res = await fetch("/api/admin-orders?limit=100", { cache: "no-store" });
+        const data = await res.json();
+        if(!res.ok || !data.ok){
+          throw new Error(data?.error || "LOAD_FAILED");
+        }
+
+        lastData = data;
+        const rows = data.orders || [];
+        statusBox.textContent = `총 ${rows.length}건 조회됨`;
+
+        if(rows.length === 0){
+          tbody.innerHTML = '<tr><td colspan="8">주문이 없습니다.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+          <tr>
+            <td>${esc(r.id)}</td>
+            <td>${esc(r.created_at)}</td>
+            <td>${esc(r.product_type)}</td>
+            <td>${esc(r.customer_name)}</td>
+            <td>${esc(r.customer_phone)}</td>
+            <td>${esc(r.customer_email)}</td>
+            <td>${esc(r.image_file_name)}</td>
+            <td class="memo">${esc(r.customer_memo)}</td>
+          </tr>
+        `).join("");
+      }catch(err){
+        statusBox.textContent = "조회 실패";
+        tbody.innerHTML = `<tr><td colspan="8">에러: ${esc(err.message || err)}</td></tr>`;
+      }
+    }
+
+    document.getElementById("refreshBtn").addEventListener("click", loadOrders);
+    document.getElementById("copyJsonBtn").addEventListener("click", async () => {
+      try{
+        await navigator.clipboard.writeText(JSON.stringify(lastData ?? {}, null, 2));
+        alert("JSON 복사 완료");
+      }catch{
+        alert("JSON 복사 실패");
+      }
+    });
+
+    loadOrders();
+  </script>
+</body>
+</html>
