@@ -1,0 +1,119 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CustomBro Mall MVP</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">CUSTOMBRO MALL</div>
+    <div class="sub">키링 · 아크릴 POP 2종 MVP</div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>나만의 굿즈를 바로 구성해보세요</h1>
+      <p>지금은 키링과 아크릴 POP 진열대 2개 상품만 먼저 엽니다.</p>
+      <div class="hero-actions">
+        <a href="#keyring" class="btn primary">키링 만들기</a>
+        <a href="#pop" class="btn">POP 만들기</a>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <h2>아크릴 키링</h2>
+        <p>이미지 업로드 · 크기 선택 · 양면 여부 · 수량</p>
+      </article>
+      <article class="card">
+        <h2>아크릴 POP 진열대</h2>
+        <p>바닥판 · 세워지는 판 · 슬롯 방식 · 수량</p>
+      </article>
+    </section>
+
+    <section id="keyring" class="builder">
+      <div class="panel">
+        <h3>키링 제작기</h3>
+        <label>이미지 업로드
+          <input type="file" id="keyringFile" accept="image/*" />
+        </label>
+        <label>모양
+          <select id="keyringShape">
+            <option value="circle">원형</option>
+            <option value="square">사각형</option>
+            <option value="rounded">라운드 사각형</option>
+          </select>
+        </label>
+        <label>크기
+          <select id="keyringSize">
+            <option value="s">소형</option>
+            <option value="m">중형</option>
+            <option value="l">대형</option>
+          </select>
+        </label>
+        <label class="inline">
+          <input type="checkbox" id="keyringDouble" />
+          양면 제작
+        </label>
+        <label>수량
+          <input type="number" id="keyringQty" min="1" value="1" />
+        </label>
+        <div class="price" id="keyringPrice">예상가: 4,500원</div>
+      </div>
+
+      <div class="preview">
+        <div class="preview-title">미리보기</div>
+        <div class="keyring-frame circle" id="keyringFrame">
+          <img id="keyringImg" alt="" />
+        </div>
+      </div>
+    </section>
+
+    <section id="pop" class="builder">
+      <div class="panel">
+        <h3>POP 제작기</h3>
+        <label>전면판 이미지 업로드
+          <input type="file" id="popFile" accept="image/*" />
+        </label>
+        <label>바닥판 크기
+          <select id="popBase">
+            <option value="s">소형</option>
+            <option value="m">중형</option>
+            <option value="l">대형</option>
+          </select>
+        </label>
+        <label>세워지는 판
+          <select id="popUpright">
+            <option value="basic">기본 직사각</option>
+            <option value="round">상단 라운드</option>
+          </select>
+        </label>
+        <label>슬롯 방식
+          <select id="popSlot">
+            <option value="1">1슬롯 기본형</option>
+            <option value="2">2슬롯 안정형</option>
+          </select>
+        </label>
+        <label>수량
+          <input type="number" id="popQty" min="1" value="1" />
+        </label>
+        <div class="price" id="popPrice">예상가: 12,000원</div>
+      </div>
+
+      <div class="preview">
+        <div class="preview-title">조립 미리보기</div>
+        <div class="pop-preview">
+          <div class="pop-upright basic" id="popUprightBox">
+            <img id="popImg" alt="" />
+          </div>
+          <div class="pop-base s" id="popBaseBox"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
