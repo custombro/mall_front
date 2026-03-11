@@ -19,6 +19,7 @@
       <div class="hero-actions">
         <a href="#keyring" class="btn primary">키링 만들기</a>
         <a href="#pop" class="btn">POP 만들기</a>
+        <a href="#order" class="btn ghost">주문요청하기</a>
       </div>
     </section>
 
@@ -61,6 +62,7 @@
           <input type="number" id="keyringQty" min="1" value="1" />
         </label>
         <div class="price" id="keyringPrice">예상가: 4,500원</div>
+        <button class="btn primary full" id="useKeyringForOrder" type="button">이 설정으로 주문요청서 채우기</button>
       </div>
 
       <div class="preview">
@@ -100,6 +102,7 @@
           <input type="number" id="popQty" min="1" value="1" />
         </label>
         <div class="price" id="popPrice">예상가: 12,000원</div>
+        <button class="btn primary full" id="usePopForOrder" type="button">이 설정으로 주문요청서 채우기</button>
       </div>
 
       <div class="preview">
@@ -109,6 +112,56 @@
             <img id="popImg" alt="" />
           </div>
           <div class="pop-base s" id="popBaseBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="order" class="order-box">
+      <div class="order-head">
+        <h3>주문요청</h3>
+        <p>현재는 주문요약 전송형 MVP입니다. 이미지 원본 자동 첨부/결제는 다음 단계에서 붙입니다.</p>
+      </div>
+
+      <div class="order-grid">
+        <div class="panel">
+          <label>주문 상품
+            <select id="orderProduct">
+              <option value="keyring">아크릴 키링</option>
+              <option value="pop">아크릴 POP 진열대</option>
+            </select>
+          </label>
+
+          <label>이름
+            <input type="text" id="customerName" placeholder="홍길동" />
+          </label>
+
+          <label>연락처
+            <input type="text" id="customerPhone" placeholder="010-0000-0000" />
+          </label>
+
+          <label>이메일
+            <input type="email" id="customerEmail" placeholder="example@email.com" />
+          </label>
+
+          <label>추가 요청사항
+            <textarea id="customerMemo" rows="6" placeholder="포장 / 납기 / 색상 / 후가공 요청사항"></textarea>
+          </label>
+
+          <div class="cta-stack">
+            <button class="btn primary full" id="refreshOrderSummary" type="button">주문요약 새로 만들기</button>
+            <button class="btn full" id="copyOrderSummary" type="button">주문요약 복사</button>
+            <button class="btn full" id="downloadOrderTxt" type="button">주문서 TXT 저장</button>
+            <button class="btn full" id="sendOrderEmail" type="button">이메일로 주문요청</button>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="preview-title">주문요약</div>
+          <textarea id="orderSummary" class="summary-box" rows="18" readonly></textarea>
+          <div class="summary-note">
+            이미지 원본 파일은 현재 브라우저에만 있으며 자동 전송되지 않습니다.
+            주문요약 전송 후 원본 파일은 회신 메일 또는 별도 채널로 전달하는 방식입니다.
+          </div>
         </div>
       </div>
     </section>
