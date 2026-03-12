@@ -6,6 +6,8 @@
   const FOLLOWUP_LIMIT = 3;
   const SUMMARY_ACTIVE_TIMEOUT = 4200;
   const SEARCH_TRIGGER_REGEX = /(검색|찾|search|where|어디|query)/;
+  const HUD_BUILD_MARK = "HUD_DIALOGUE_V7_20260312";
+  const HUD_STORAGE_KEY = "custombro_hud_chat_v7";
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V6_20260312";
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V5_20260312";
 
@@ -379,7 +381,16 @@
     scanlines.className = "hud-scanlines";
 
     let hudState = createInitialState();
+    try{
+      const cachedLog = JSON.parse(localStorage.getItem(`${HUD_STORAGE_KEY}:${hudState.contextKey}`) || "null");
+      if(Array.isArray(cachedLog) && cachedLog.length){
+        hudState.chatLog = cachedLog.slice(-CHAT_LOG_LIMIT);
+      }
+    } catch {}
     let summaryResetTimer = null;
+    let forceScrollBottom = true;
+    let lastKnownScrollTop = 0;
+    const HUD_SCROLL_V7 = true;
 
     function createInitialState(){
       const key = resolvePageKey();
@@ -421,10 +432,28 @@
     }
 
     function render(){
+      const prevLogEl = panel.querySelector("[data-hud-log]");
+      const shouldStick = forceScrollBottom || isNearBottom(prevLogEl);
+      if(prevLogEl){ lastKnownScrollTop = prevLogEl.scrollTop; }
+
       panel.innerHTML = templateFromState(hudState);
       panel.appendChild(scanlines);
       attachComposer();
-      scrollLogToBottom();
+
+      const nextLogEl = panel.querySelector("[data-hud-log]");
+      if(nextLogEl){
+        nextLogEl.addEventListener("scroll", () => {
+          lastKnownScrollTop = nextLogEl.scrollTop;
+        }, { passive:true });
+
+        if(shouldStick){
+          scrollLogToBottom();
+        } else {
+          restoreScroll(nextLogEl);
+        }
+      }
+
+      forceScrollBottom = false;
     }
 
     function attachComposer(){
@@ -549,12 +578,26 @@
         actions:Array.isArray(entry.actions) ? entry.actions.map(action => ({ ...action })) : []
       };
       hudState.chatLog = [...hudState.chatLog, payload].slice(-CHAT_LOG_LIMIT);
+      forceScrollBottom = true;
+      try{
+        localStorage.setItem(`${HUD_STORAGE_KEY}:${hudState.contextKey}`, JSON.stringify(hudState.chatLog));
+      } catch {}
       render();
     }
 
     function setTyping(flag){
       hudState.isTyping = !!flag;
       render();
+    }
+
+    function isNearBottom(logEl){
+      if(!logEl){ return true; }
+      return (logEl.scrollHeight - logEl.scrollTop - logEl.clientHeight) < 28;
+    }
+
+    function restoreScroll(logEl){
+      if(!logEl){ return; }
+      logEl.scrollTop = Math.max(0, Math.min(lastKnownScrollTop, logEl.scrollHeight));
     }
 
     function scrollLogToBottom(){
@@ -625,6 +668,64 @@
         meta:"문맥 기반 답변"
       });
     }
+    const previousUserMessage = Array.isArray(state?.chatLog)
+      ? [...state.chatLog].reverse().find(entry =>
+          entry &&
+          entry.role === "user" &&
+          (entry.text || "").trim() &&
+          (entry.text || "").trim().toLowerCase() !== normalized
+        )
+      : null;
+
+    const previousBotMessage = Array.isArray(state?.chatLog)
+      ? [...state.chatLog].reverse().find(entry =>
+          entry &&
+          entry.role !== "user" &&
+          (entry.text || "").trim()
+        )
+      : null;
+
+    if(/^(안녕|안녕하세요|ㅎㅇ|hello|hi)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`안녕하세요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 같이 보고 있어요. 주문, 보관함, 재주문 중에서 어떤 걸 먼저 볼까요?`,
+        meta:"대화형 안내"
+      });
+    }
+
+    if(/^(야|있어|뭐해|헬프|help)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`네, 여기 있어요. ${state?.contextLabel || "현재 페이지"} 기준으로 바로 이어서 볼게요. 필요한 걸 짧게 말해 주세요.`,
+        meta:"바로 응답"
+      });
+    }
+
+    if(/^(d|di|\?+|뭐야|뭐라는거야|뭐라는 거야|왜|왜 안돼|왜 안돼요|이게 뭐야|뭔 소리야)$/.test(normalized)){
+      const prevText = previousBotMessage && previousBotMessage.text ? previousBotMessage.text : "";
+      const contextHint =
+        state?.contextKey === "drawer" ? "주문 찾기 / 동일사양 재주문 / 수정 재주문" :
+        state?.contextKey === "admin" ? "신규 주문 확인 / 재주문 건 보기 / JSON 복사" :
+        state?.contextKey === "receipt" ? "추가 주문 / 수정 / 보관함 확인" :
+        "주문 방법 / 보관함 / 제작 대기";
+
+      return formatResponse({
+        label:"BRO",
+        message: prevText
+          ? `좋아요. 방금 제 설명이 딱딱했어요. 쉽게 말하면 "${prevText}" 흐름에서 ${contextHint} 중 원하는 걸 바로 이어서 도와드릴 수 있다는 뜻이에요. 필요한 것만 한 단어로 말해 주세요.`
+          : `좋아요. 더 쉽게 도와드릴게요. ${contextHint} 중 지금 필요한 걸 한 단어로 말해 주세요.`,
+        meta:"문맥 재설명"
+      });
+    }
+
+    if(normalized.length -le 2 -and normalized -notmatch "[0-9]"){
+      return formatResponse({
+        label:"BRO",
+        message:`짧게 보내주셔도 괜찮아요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 보고 있으니 주문, 보관함, 재주문, 수정 중 하나만 말해 주셔도 바로 이어서 설명드릴게요.`,
+        meta:"짧은 입력 보정"
+      });
+    }
+
     if(isSearchPrompt(normalized)){
       const searchResponse = formatResponse(buildSearchResponse(query, state));
       if(searchResponse.text){
