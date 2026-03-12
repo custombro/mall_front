@@ -8,6 +8,7 @@
   const SEARCH_TRIGGER_REGEX = /(검색|찾|search|where|어디|query)/;
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V7_20260312";
   const HUD_STORAGE_KEY = "custombro_hud_chat_v7";
+  const HUD_CUSTOMER_COPY_MARK = "HUD_CUSTOMER_COPY_V8_20260312";
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V6_20260312";
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V5_20260312";
 
@@ -79,13 +80,13 @@
         keywords:[
           {
             match:["주문","order","접수"],
-            message:"주문은 빌더에서 옵션을 채운 뒤 하단 주문 섹션에서 고객 정보를 입력하고 제출하면 서버 DB에 즉시 저장됩니다.",
-            meta:"index 페이지 기준",
+            message:"원하시는 옵션을 고르고 주문 정보를 보내주시면 주문이 정상 접수됩니다. 접수 후에는 제작 순서에 맞춰 진행돼요.",
+            meta:"주문 페이지 안내",
             actions:[{ label:"주문 섹션으로 이동", action:"scroll", target:"#order" }]
           },
           {
             match:["보관함","drawer","재주문","서랍"],
-            message:"보관함(drawer)은 주문번호 또는 이름+연락처로 기존 주문을 다시 불러와 재주문/수정 재주문을 연결합니다.",
+            message:"보관함에서는 예전에 주문한 내용을 다시 불러와서 같은 내용으로 다시 주문하거나, 조금 고쳐서 다시 주문할 수 있어요.",
             actions:[
               { label:"보관함 열기", action:"go", target:"./drawer.html" },
               { label:"주문 페이지로 이동", action:"go", target:"./index.html#order" }
@@ -106,8 +107,8 @@
           }
         ],
         fallback:(query, state) => ({
-          message:`"${query}"라고 하신 걸 ${state?.contextLabel || "현재 페이지"} 기준으로 바로 연결해 볼게요. 주문 방법, 보관함 재주문, 제작 대기 중 어떤 쪽인지 한 단어만 더 말해 주세요.`,
-          meta:"대화형 후속질문 유도"
+          message:`아직 질문 뜻을 정확히 못 알아들었어요. 주문방법, 다시주문, 제작기간 중 어떤 게 궁금한지만 짧게 적어주시면 바로 이어서 설명해드릴게요.`,
+          meta:"쉽게 다시 안내해드릴게요"
         })
       }
     },
@@ -123,7 +124,7 @@
           label:"검색 상태",
           value:"대기 중",
           meta:"입력 시 즉시 조회",
-          detail:"보관함 검색은 주문번호 또는 이름+연락처 조합으로 바로 열립니다. 검색 시 서버에서 최신 주문을 다시 수신합니다.",
+          detail:"보관함 검색은 주문번호 또는 이름+연락처 조합으로 바로 열립니다. 검색 시 최신 주문 상태를 다시 확인합니다.",
           actions:[{ label:"검색 폼 위치", action:"scroll", target:".drawer-search" }]
         },
         {
@@ -154,7 +155,7 @@
           label:"포인트/등급",
           value:"준비 중",
           meta:"더미 데이터",
-          detail:"재주문 페이지에서도 포인트·등급은 아직 더미 표시입니다. 추후 고객 DB 연동 후 업데이트됩니다."
+          detail:"재주문 페이지에서도 포인트·등급은 아직 더미 표시입니다. 정확한 표시가 곧 연결될 예정입니다."
         }
       ],
       quickChips:[
@@ -176,13 +177,13 @@
           },
           {
             match:["주문번호","번호","없이","검색"],
-            message:"주문번호가 없다면 이름과 휴대폰 뒷자리를 함께 입력하면 동일 주문을 찾을 수 있습니다. 연락처는 하이픈 없이 입력해 주세요.",
+            message:"주문번호가 없어도 괜찮아요. 주문하신 분 이름과 휴대폰 뒷자리를 함께 입력하면 주문을 찾을 수 있어요.",
             actions:[{ label:"검색 폼 위치", action:"scroll", target:".drawer-search" }]
           },
           {
             match:["수정","옵션","변경","edit"],
-            message:"수정 재주문 버튼은 기존 데이터를 복사한 뒤 옵션만 바꾸도록 돕습니다. 업로드 이미지가 있다면 다시 첨부해야 합니다.",
-            meta:"이미지 파일은 자동 복사되지 않음"
+            message:"수정 재주문은 예전 주문 내용을 바탕으로 필요한 부분만 바꿔서 다시 주문하는 방식이에요. 사진이 들어간 주문이라면 이미지를 다시 올려주셔야 할 수 있어요.",
+            meta:"사진은 다시 올려주셔야 할 수 있어요"
           }
         ],
         fallback:(query, state) => ({
@@ -264,7 +265,7 @@
           },
           {
             match:["수정","edit","변경"],
-            message:"주문서를 수정해야 한다면 보관함에서 방금 주문을 불러와 수정 재주문 버튼을 눌러 주세요.",
+            message:"방금 넣은 주문 내용을 바꾸고 싶다면 보관함에서 해당 주문을 불러와 수정 재주문을 누르시면 돼요.",
             actions:[{ label:"보관함으로 이동", action:"go", target:"./drawer.html" }]
           }
         ],
@@ -721,7 +722,7 @@
     if(normalized.length -le 2 -and normalized -notmatch "[0-9]"){
       return formatResponse({
         label:"BRO",
-        message:`짧게 보내주셔도 괜찮아요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 보고 있으니 주문, 보관함, 재주문, 수정 중 하나만 말해 주셔도 바로 이어서 설명드릴게요.`,
+        message:`짧게 보내주셔도 괜찮아요. 주문, 다시주문, 제작기간, 수정 중 하나만 적어주셔도 바로 이어서 설명해드릴게요.`,
         meta:"짧은 입력 보정"
       });
     }
@@ -849,7 +850,7 @@
             ${chips}
           </div>
           <form class="hud-composer" autocomplete="off">
-            <input type="text" name="hudInput" placeholder="편하게 물어보세요. 제가 이어서 정리해드릴게요" aria-label="HUD 질문 입력" />
+            <input type="text" name="hudInput" placeholder="궁금한 걸 편하게 적어주세요. 제가 손님 입장에서 쉽게 설명해드릴게요" aria-label="HUD 질문 입력" />
             <button type="submit" class="hud-send">전송</button>
           </form>
         </section>
