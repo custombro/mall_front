@@ -580,3 +580,47 @@ input,select,textarea{padding:12px 14px;border:1px solid var(--gray-300);border-
 }
 .hud-chat-row.bot .hud-chat-actions{justify-content:flex-start}
 .hud-chat-row.user .hud-chat-actions{justify-content:flex-end}
+/* HUD_DIALOGUE_V6_20260312 */
+.hud-panel{
+  background:linear-gradient(180deg,rgba(44,70,124,0.94),rgba(35,56,104,0.96));
+  border-color:rgba(153,195,255,0.42);
+  box-shadow:0 24px 70px rgba(8,16,32,0.34);
+}
+.hud-panel header strong{font-size:22px}
+.hud-panel header p{color:#bcd6ff}
+.hud-scanlines{
+  background-image:linear-gradient(rgba(255,255,255,0.015) 30%,transparent 30%);
+  background-size:100% 10px;
+  opacity:.22;
+}
+.hud-summary-card{
+  background:rgba(255,255,255,0.045);
+  border-color:rgba(160,202,255,0.26);
+}
+.hud-chat{
+  background:rgba(12,27,58,0.42);
+  border-color:rgba(160,202,255,0.32);
+}
+.hud-chat-head h3{font-size:20px}
+.hud-chat-head p{font-size:13px;color:#c8dcff}
+.hud-message-bubble{
+  max-width:74%;
+  border-radius:22px;
+  box-shadow:0 14px 28px rgba(6,12,24,0.22);
+}
+.hud-chat-row.bot .hud-message-bubble{
+  background:linear-gradient(180deg,rgba(255,255,255,0.15),rgba(255,255,255,0.08));
+  border-color:rgba(171,214,255,0.58);
+}
+.hud-chat-row.user .hud-message-bubble{
+  background:linear-gradient(135deg,rgba(93,159,255,0.98),rgba(52,111,221,0.96));
+}
+.hud-message-label{font-size:10px;letter-spacing:0.18em}
+.hud-message-text{font-size:14px;line-height:1.6}
+.hud-composer input{
+  border-radius:999px;
+  background:rgba(255,255,255,0.10);
+}
+.hud-chip,.hud-chat-actions button{
+  background:rgba(255,255,255,0.08);
+}

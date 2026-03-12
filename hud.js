@@ -6,6 +6,7 @@
   const FOLLOWUP_LIMIT = 3;
   const SUMMARY_ACTIVE_TIMEOUT = 4200;
   const SEARCH_TRIGGER_REGEX = /(검색|찾|search|where|어디|query)/;
+  const HUD_BUILD_MARK = "HUD_DIALOGUE_V6_20260312";
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V5_20260312";
 
   const HUD_CONTEXTS = {
@@ -69,8 +70,8 @@
         { id:"chip-open-drawer", label:"보관함 열기", action:{ type:"go", target:"./drawer.html" } }
       ],
       initialMessages:[
-        { role:"system", label:"HUD", text:"제작 페이지 모드예요. 궁금한 걸 짧게 물어보면 이어서 답할게요.", topic:"orders" },
-        { role:"system", label:"TIP", text:"요약 카드를 누르면 그 주제로 대화를 전환하고, 칩은 자주 묻는 질문이에요.", topic:"orders" }
+        { role:"system", label:"BRO", text:"지금 보고 계신 제작 페이지 기준으로 같이 볼게요. 막히는 부분을 편하게 말해 주세요.", topic:"orders" },
+        { role:"system", label:"TIP", text:"왼쪽 카드를 누르면 그 주제로 바로 이어서 설명하고, 아래 버튼은 빠른 질문이에요.", topic:"orders" }
       ],
       responses:{
         keywords:[
@@ -103,8 +104,8 @@
           }
         ],
         fallback:(query, state) => ({
-          message:`"${query}" 질문은 아직 ${state?.contextLabel || "이 페이지"} 룰베이스에 연결되지 않았어요.`,
-          meta:"실제 AI 연결 전 더미 응답"
+          message:`"${query}"라고 하신 걸 ${state?.contextLabel || "현재 페이지"} 기준으로 바로 연결해 볼게요. 주문 방법, 보관함 재주문, 제작 대기 중 어떤 쪽인지 한 단어만 더 말해 주세요.`,
+          meta:"대화형 후속질문 유도"
         })
       }
     },
@@ -161,8 +162,8 @@
         { id:"chip-go-order", label:"주문 페이지 이동", action:{ type:"go", target:"./index.html#order" } }
       ],
       initialMessages:[
-        { role:"system", label:"HUD", text:"보관함 페이지 모드를 활성화했습니다. 검색 결과에 맞춰 안내 메시지를 업데이트합니다." },
-        { role:"system", label:"TIP", text:"검색 폼 아래 재주문/수정 재주문 버튼이 있는 카드에 맞춰 필요한 도움말을 제공합니다." }
+        { role:"system", label:"BRO", text:"보관함 기준으로 같이 볼게요. 찾는 주문이나 다시 주문하고 싶은 건을 말해 주세요." },
+        { role:"system", label:"TIP", text:"주문번호 없이 찾기, 동일사양 재주문, 수정 재주문 중 원하는 흐름으로 바로 이어갈 수 있어요." }
       ],
       responses:{
         keywords:[
@@ -183,7 +184,7 @@
           }
         ],
         fallback:(query, state) => ({
-          message:`"${query}" 질문은 ${state?.contextLabel || "보관함"} 모드에 아직 등록되어 있지 않습니다.`,
+          message:`"${query}"라고 하신 건 보관함 흐름에서 다시 풀어드릴 수 있어요. 주문번호 없이 찾기, 동일사양 재주문, 수정 재주문 중 어떤 건지 말해 주세요.`,
           meta:"룰 확장 예정"
         })
       }
@@ -244,8 +245,8 @@
         { id:"chip-go-drawer", label:"보관함에서 확인", action:{ type:"go", target:"./drawer.html" } }
       ],
       initialMessages:[
-        { role:"system", label:"HUD", text:"주문이 완료되었습니다. 다음 행동을 선택할 수 있도록 안내를 전환했습니다." },
-        { role:"system", label:"TIP", text:"추가 주문이나 문의가 있다면 버튼을 누르거나 질문을 입력해 주세요." }
+        { role:"system", label:"BRO", text:"주문 접수는 끝났어요. 이제 수정할지, 보관함에서 다시 볼지 같이 정리해드릴게요." },
+        { role:"system", label:"TIP", text:"추가 주문, 수정, 보관함 확인 중 다음 행동을 바로 선택할 수 있어요." }
       ],
       responses:{
         keywords:[
@@ -266,7 +267,7 @@
           }
         ],
         fallback:(query, state) => ({
-          message:`"${query}" 질문은 ${state?.contextLabel || "접수 완료"} 모드에 아직 연결되지 않았어요.`,
+          message:`"${query}" 이후에 뭘 하면 좋을지 같이 정리해드릴게요. 추가 주문, 수정, 보관함 확인 중 원하는 방향을 말해 주세요.`,
           meta:"룰 확장 예정"
         })
       }
@@ -324,7 +325,7 @@
         { id:"chip-open-shop", label:"쇼핑몰 열기", action:{ type:"go", target:"./index.html" } }
       ],
       initialMessages:[
-        { role:"system", label:"HUD", text:"관리자 모드로 전환했습니다. 주문 로그와 관리 작업 중심으로 답변합니다." }
+        { role:"system", label:"BRO", text:"관리자 화면 기준으로 같이 보겠습니다. 주문 로그, 재주문 건, JSON 복사 흐름까지 바로 안내할게요." }
       ],
       responses:{
         keywords:[
@@ -345,7 +346,7 @@
           }
         ],
         fallback:(query, state) => ({
-          message:`"${query}" 질문은 ${state?.contextLabel || "관리자"} 모드에 아직 연결되지 않았어요.`,
+          message:`"${query}" 기준으로 관리자 화면에서 이어볼 수 있어요. 신규 주문 확인, 재주문 건 보기, JSON 복사 중 원하는 쪽을 말해 주세요.`,
           meta:"룰 확장 예정"
         })
       }
@@ -390,8 +391,8 @@
       const initialLog = cloneChatLog(preset.initialMessages, defaultTopic);
       topicLogs[defaultTopic] = initialLog.length ? initialLog : [{
         role:"system",
-        label:"HUD",
-        text:"CustomBro HUD가 준비되었습니다.",
+        label:"BRO",
+        text:"브로 상태창 준비 끝. 바로 이어서 도와드릴게요.",
         topic:defaultTopic
       }];
       const state = {
@@ -414,7 +415,7 @@
     }
 ;
       if(state.chatLog.length === 0){
-        state.chatLog = [{ role:"system", label:"HUD", text:"CustomBro HUD가 준비되었습니다." }];
+        state.chatLog = [{ role:"system", label:"BRO", text:"브로 상태창 준비 끝. 바로 이어서 도와드릴게요." }];
       }
       return state;
     }
@@ -507,7 +508,7 @@
         setTyping(false);
         pushHudMessage({
           role:"system",
-          label:response.label || "HUD",
+          label:response.label || "BRO",
           text:response.text || "",
           meta:response.meta,
           actions:response.actions
@@ -529,7 +530,7 @@
         const shouldShowMeta = card.meta && !(typeof card.detail === "string" && card.detail.indexOf(card.meta) > -1);
         pushHudMessage({
           role:"system",
-          label:card.label || "HUD",
+          label:card.label || "BRO",
           text:card.detail,
           meta:shouldShowMeta ? card.meta : undefined,
           actions:card.actions
@@ -589,6 +590,41 @@
   function resolveHudResponse(query, state){
     const bank = state?.responseBank || {};
     const normalized = (query || "").trim().toLowerCase();
+    const previousUserMessage = Array.isArray(state?.chatLog)
+      ? [...state.chatLog].reverse().find(entry =>
+          entry &&
+          entry.role === "user" &&
+          (entry.text || "").trim() &&
+          (entry.text || "").trim().toLowerCase() !== normalized
+        )
+      : null;
+
+    if(/^(안녕|안녕하세요|ㅎㅇ|hello|hi)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`안녕하세요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 같이 보고 있어요. 주문, 보관함, 재주문 중에서 어떤 걸 먼저 볼까요?`,
+        meta:"대화형 안내"
+      });
+    }
+
+    if(/^(야|있어|뭐해|헬프|help)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`네, 여기 있어요. ${state?.contextLabel || "현재 페이지"} 기준으로 바로 이어서 볼게요. 필요한 걸 짧게 말해 주세요.`,
+        meta:"바로 응답"
+      });
+    }
+
+    if(/(뭐야|뭔데|무슨 뜻|내가 뭐|왜 안돼|왜 안돼요|이게 뭐)/.test(normalized)){
+      const prev = previousUserMessage && previousUserMessage.text
+        ? `방금 "${previousUserMessage.text}"라고 하신 흐름을 기준으로 보면, `
+        : "";
+      return formatResponse({
+        label:"BRO",
+        message:`${prev}${state?.contextLabel || "이 페이지"}에서는 주문 진행, 보관함 조회, 재주문 연결 중 하나로 바로 이어서 도와드릴 수 있어요. 제가 다음 행동도 바로 집어드릴게요.`,
+        meta:"문맥 기반 답변"
+      });
+    }
     if(isSearchPrompt(normalized)){
       const searchResponse = formatResponse(buildSearchResponse(query, state));
       if(searchResponse.text){
@@ -712,7 +748,7 @@
             ${chips}
           </div>
           <form class="hud-composer" autocomplete="off">
-            <input type="text" name="hudInput" placeholder="질문을 입력하거나 칩을 선택하세요" aria-label="HUD 질문 입력" />
+            <input type="text" name="hudInput" placeholder="편하게 물어보세요. 제가 이어서 정리해드릴게요" aria-label="HUD 질문 입력" />
             <button type="submit" class="hud-send">전송</button>
           </form>
         </section>
@@ -770,6 +806,41 @@
 
   function buildSearchResponse(query, state){
     const normalized = (query || "").trim().toLowerCase();
+    const previousUserMessage = Array.isArray(state?.chatLog)
+      ? [...state.chatLog].reverse().find(entry =>
+          entry &&
+          entry.role === "user" &&
+          (entry.text || "").trim() &&
+          (entry.text || "").trim().toLowerCase() !== normalized
+        )
+      : null;
+
+    if(/^(안녕|안녕하세요|ㅎㅇ|hello|hi)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`안녕하세요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 같이 보고 있어요. 주문, 보관함, 재주문 중에서 어떤 걸 먼저 볼까요?`,
+        meta:"대화형 안내"
+      });
+    }
+
+    if(/^(야|있어|뭐해|헬프|help)$/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:`네, 여기 있어요. ${state?.contextLabel || "현재 페이지"} 기준으로 바로 이어서 볼게요. 필요한 걸 짧게 말해 주세요.`,
+        meta:"바로 응답"
+      });
+    }
+
+    if(/(뭐야|뭔데|무슨 뜻|내가 뭐|왜 안돼|왜 안돼요|이게 뭐)/.test(normalized)){
+      const prev = previousUserMessage && previousUserMessage.text
+        ? `방금 "${previousUserMessage.text}"라고 하신 흐름을 기준으로 보면, `
+        : "";
+      return formatResponse({
+        label:"BRO",
+        message:`${prev}${state?.contextLabel || "이 페이지"}에서는 주문 진행, 보관함 조회, 재주문 연결 중 하나로 바로 이어서 도와드릴 수 있어요. 제가 다음 행동도 바로 집어드릴게요.`,
+        meta:"문맥 기반 답변"
+      });
+    }
     if(!normalized){ return { text:"" }; }
     const cards = state?.summaryCards || [];
     const tokens = normalized.split(/\s+/).filter(Boolean);
