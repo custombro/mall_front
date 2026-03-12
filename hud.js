@@ -2,8 +2,11 @@
   if(window.CustomBroHUD){ return; }
 
   const CHAT_LOG_LIMIT = 14;
+  const TOPIC_LOG_LIMIT = 6;
+  const FOLLOWUP_LIMIT = 3;
   const SUMMARY_ACTIVE_TIMEOUT = 4200;
   const SEARCH_TRIGGER_REGEX = /(검색|찾|search|where|어디|query)/;
+  const HUD_BUILD_MARK = "HUD_DIALOGUE_V5_20260312";
 
   const HUD_CONTEXTS = {
     home:{
@@ -12,56 +15,62 @@
       heading:"STATUS HUD · 제작",
       subheading:"작은 요약 + 큰 채팅으로 주문 상황 안내",
       chatHint:"주문 흐름이나 제작 대기 상황을 바로 물어보세요.",
+      defaultTopic:"orders",
       summaryCards:[
         {
           id:"orders",
-          label:"현재 주문 수량",
+          topic:"orders",
+          label:"현재 주문",
           value:"12건",
-          meta:"금일 신규 2건",
-          detail:"현재 큐에는 12건의 주문이 쌓여 있으며 신규 2건은 급한 일정으로 표시되었습니다. 관리자 주문 페이지에서 정렬된 목록을 바로 확인할 수 있어요.",
+          meta:"오늘 2건 추가",
+          detail:"지금 12건 진행 중이에요. 급한 2건은 표시해 뒀고 필요하면 관리자 화면에서 순서를 바꿀 수 있어요.",
           actions:[{ label:"관리자 주문 열기", action:"go", target:"./admin-orders.html" }]
         },
         {
           id:"recentBuild",
-          label:"최근 제작 품목",
+          topic:"build",
+          label:"최근 제작",
           value:"아크릴 키링",
           meta:"POP 2세트 병행",
-          detail:"가장 최근 제작 중인 품목은 아크릴 키링 세트이며 POP 패널 2세트가 동시에 진행 중입니다. 빌더 미리보기를 열어 세부 옵션을 다시 확인할 수 있어요.",
+          detail:"방금까지 아크릴 키링과 POP 세트가 같이 돌아갔어요. 빌더에서 옵션 다시 볼 수 있어요.",
           actions:[{ label:"키링 빌더 이동", action:"scroll", target:"#keyring" }]
         },
         {
           id:"drawerState",
-          label:"보관함 상태",
+          topic:"drawer",
+          label:"보관함",
           value:"3건 준비",
           meta:"재주문 대기",
-          detail:"보관함에는 최근 저장된 데이터 3건이 재주문 대기 상태입니다. 주문번호나 연락처를 입력하면 즉시 불러올 수 있어요.",
+          detail:"보관함에 3건이 저장돼 있고 주문번호나 연락처를 넣으면 바로 불러올 수 있어요.",
           actions:[{ label:"보관함 열기", action:"go", target:"./drawer.html" }]
         },
         {
           id:"broStatus",
-          label:"작업 브로 상태",
+          topic:"ops",
+          label:"작업 브로",
           value:"보통 바쁨",
-          meta:"응답 SLA 3일",
-          detail:"작업 브로는 보통 바쁨 모드로, 제작 진행 상황을 하루 2회 스냅샷으로 정리하고 있습니다. 급한 요청은 채팅창으로 남겨 주세요."
+          meta:"응답 3일 이내",
+          detail:"작업 브로가 하루 두 번 상태를 정리하고 있어요. 급하면 채팅으로 남겨 주세요."
         },
         {
           id:"points",
+          topic:"points",
           label:"포인트/등급",
           value:"준비 중",
           meta:"더미 데이터",
-          detail:"포인트·등급 기능은 현재 더미 값으로 표시됩니다. 추후 실제 고객 포인트 API가 연결되면 자동 반영될 예정입니다."
+          detail:"포인트는 아직 더미 값이에요. 실제 연결 전까지 참고용으로만 봐 주세요."
         }
       ],
       quickChips:[
-        { id:"chip-order-how", label:"주문은 어떻게 하나요?", prompt:"주문은 어떻게 하나요?" },
-        { id:"chip-drawer", label:"보관함에서 다시 주문하고 싶어요", prompt:"보관함에서 다시 주문하고 싶어요" },
-        { id:"chip-backlog", label:"지금 제작이 얼마나 밀려있나요?", prompt:"지금 제작이 얼마나 밀려있나요?" },
-        { id:"chip-keyring", label:"키링 제작 방법 알려줘", prompt:"키링 제작 방법 알려줘" },
+        { id:"chip-order-how", label:"주문 절차 알려줘", prompt:"주문은 어떻게 하나요?", topic:"orders" },
+        { id:"chip-drawer", label:"보관함 재주문", prompt:"보관함에서 다시 주문하고 싶어요", topic:"drawer" },
+        { id:"chip-backlog", label:"제작 대기", prompt:"지금 제작이 얼마나 밀려있나요?", topic:"orders" },
+        { id:"chip-keyring", label:"키링 제작 팁", prompt:"키링 제작 방법 알려줘", topic:"build" },
         { id:"chip-open-drawer", label:"보관함 열기", action:{ type:"go", target:"./drawer.html" } }
       ],
       initialMessages:[
-        { role:"system", label:"HUD", text:"CustomBro HUD V3가 주문 · 제작 페이지를 감시 중입니다." },
-        { role:"system", label:"GUIDE", text:"요약 카드를 누르면 관련 설명이 채팅으로 도착하고, 아래 칩을 누르면 자주 묻는 질문을 즉시 확인할 수 있어요." }
+        { role:"system", label:"HUD", text:"제작 페이지 모드예요. 궁금한 걸 짧게 물어보면 이어서 답할게요.", topic:"orders" },
+        { role:"system", label:"TIP", text:"요약 카드를 누르면 그 주제로 대화를 전환하고, 칩은 자주 묻는 질문이에요.", topic:"orders" }
       ],
       responses:{
         keywords:[
@@ -374,19 +383,36 @@
     function createInitialState(){
       const key = resolvePageKey();
       const preset = HUD_CONTEXTS[key] || HUD_CONTEXTS.home;
+      const summaryCards = cloneSummaryCards(preset.summaryCards);
+      const quickChips = cloneQuickChips(preset.quickChips);
+      const defaultTopic = preset.defaultTopic || getCardTopic(summaryCards[0]) || "general";
+      const topicLogs = {};
+      const initialLog = cloneChatLog(preset.initialMessages, defaultTopic);
+      topicLogs[defaultTopic] = initialLog.length ? initialLog : [{
+        role:"system",
+        label:"HUD",
+        text:"CustomBro HUD가 준비되었습니다.",
+        topic:defaultTopic
+      }];
       const state = {
         contextKey:key,
         contextLabel:preset.label,
         heading:preset.heading || "STATUS HUD",
         subheading:preset.subheading || "Interactive 상태창",
         chatHint:preset.chatHint || "질문을 입력하세요.",
-        summaryCards:cloneSummaryCards(preset.summaryCards),
-        quickChips:cloneQuickChips(preset.quickChips),
-        chatLog:cloneChatLog(preset.initialMessages),
+        summaryCards,
+        quickChips,
+        topicLogs,
+        topicFollowups:{},
         responseBank:preset.responses || {},
+        activeTopic:defaultTopic,
         lastActiveCardId:null,
         isTyping:false
       };
+      state.topicFollowups[defaultTopic] = buildDefaultFollowups(defaultTopic, state.contextKey);
+      return state;
+    }
+;
       if(state.chatLog.length === 0){
         state.chatLog = [{ role:"system", label:"HUD", text:"CustomBro HUD가 준비되었습니다." }];
       }
@@ -625,7 +651,7 @@
     }).join("");
 
     const logEntries = (state.chatLog || []).map(entry => {
-      const roleClass = entry.role === "user" ? "user" : "system";
+      const roleClass = entry.role === "user" ? "user" : "bot";
       const label = entry.label ? `<span class="hud-message-label">${escapeHtml(entry.label)}</span>` : "";
       const meta = entry.meta ? `<span class="hud-message-meta">${escapeHtml(entry.meta)}</span>` : "";
       const actions = Array.isArray(entry.actions) && entry.actions.length ? `<div class="hud-chat-actions">${entry.actions.map(action => {
@@ -643,7 +669,7 @@
       </div>`;
     }).join("");
 
-    const typing = state.isTyping ? `<div class="hud-chat-row system"><div class="hud-message-bubble typing"><span class="hud-typing-line"></span></div></div>` : "";
+    const typing = state.isTyping ? `<div class="hud-chat-row bot"><div class="hud-message-bubble typing"><span class="hud-typing-line"></span></div></div>` : "";
 
     const chips = (state.quickChips || []).map(chip => {
       if(chip.action){
