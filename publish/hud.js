@@ -3,112 +3,137 @@
 
   const CHAT_LOG_LIMIT = 14;
   const TOPIC_LOG_LIMIT = 6;
-  const FOLLOWUP_LIMIT = 3;
+  const FOLLOWUP_MIN = 2;
+  const FOLLOWUP_MAX = 4;
   const SUMMARY_ACTIVE_TIMEOUT = 4200;
   const SEARCH_TRIGGER_REGEX = /(검색|찾|search|where|어디|query)/;
   const HUD_BUILD_MARK = "HUD_DIALOGUE_V7_20260312";
   const HUD_STORAGE_KEY = "custombro_hud_chat_v7";
   const HUD_CUSTOMER_COPY_MARK = "HUD_CUSTOMER_COPY_V8_20260312";
-  const HUD_BUILD_MARK = "HUD_DIALOGUE_V6_20260312";
-  const HUD_BUILD_MARK = "HUD_DIALOGUE_V5_20260312";
+const CONTEXT_SCOPE_HINTS = {
+  home:"홈 화면 업무 흐름",
+  drawer:"회원 재주문·보관 흐름",
+  receipt:"정산/영수증 확인 흐름",
+  admin:"관리자 전체 업무·주문 기준",
+  default:"현재 화면 기준"
+};
 
   const HUD_CONTEXTS = {
     home:{
       key:"home",
-      label:"주문/제작 모드",
-      heading:"STATUS HUD · 제작",
-      subheading:"작은 요약 + 큰 채팅으로 주문 상황 안내",
-      chatHint:"주문 흐름이나 제작 대기 상황을 바로 물어보세요.",
+      label:"워크숍 홈",
+      heading:"STATUS HUD · 공방",
+      subheading:"노드 전환 & 주문 워크플로",
+      chatHint:"소재, 워크벤치, 재주문 질문을 입력해 주세요.",
       defaultTopic:"orders",
       summaryCards:[
         {
-          id:"orders",
+          id:"currentWorkload",
           topic:"orders",
-          label:"현재 주문",
-          value:"12건",
-          meta:"오늘 2건 추가",
-          detail:"지금 12건 진행 중이에요. 급한 2건은 표시해 뒀고 필요하면 관리자 화면에서 순서를 바꿀 수 있어요.",
-          actions:[{ label:"관리자 주문 열기", action:"go", target:"./admin-orders.html" }]
+          label:"현재 작업 상태",
+          value:"12건 진행 중",
+          meta:"긴급 2 · 일반 10",
+          detail:"긴급 두 건과 일반 열 건이 HUD 관리자 보드와 실시간으로 연동됩니다.",
+          actions:[
+            { label:"워크벤치 노드", action:"workshop", target:"workbench" },
+            { label:"작업 플로우", action:"scroll", target:"#workbenchFlow" }
+          ]
         },
         {
-          id:"recentBuild",
+          id:"recentSave",
           topic:"build",
-          label:"최근 제작",
-          value:"아크릴 키링",
-          meta:"POP 2세트 병행",
-          detail:"방금까지 아크릴 키링과 POP 세트가 같이 돌아갔어요. 빌더에서 옵션 다시 볼 수 있어요.",
-          actions:[{ label:"키링 빌더 이동", action:"scroll", target:"#keyring" }]
+          label:"최근 저장본",
+          value:"키링 · POP",
+          meta:"3분 전",
+          detail:"키링/POP 템플릿을 방금 저장했습니다. 서랍이나 HUD 카드에서 즉시 불러올 수 있어요.",
+          actions:[{ label:"최근 작업 열기", action:"go", target:"./drawer.html#drawerRecent" }]
         },
         {
-          id:"drawerState",
+          id:"drawerCount",
           topic:"drawer",
-          label:"보관함",
-          value:"3건 준비",
-          meta:"재주문 대기",
-          detail:"보관함에 3건이 저장돼 있고 주문번호나 연락처를 넣으면 바로 불러올 수 있어요.",
-          actions:[{ label:"보관함 열기", action:"go", target:"./drawer.html" }]
+          label:"보관 서랍",
+          value:"3건 보관",
+          meta:"재주문 바로가기",
+          detail:"세 개의 주문 카드가 보관 서랍에 대기 중이며 주문 폼에 한 번에 채워 넣을 수 있습니다.",
+          actions:[{ label:"서랍 이동", action:"go", target:"./drawer.html" }]
         },
         {
-          id:"broStatus",
-          topic:"ops",
-          label:"작업 브로",
-          value:"보통 바쁨",
-          meta:"응답 3일 이내",
-          detail:"작업 브로가 하루 두 번 상태를 정리하고 있어요. 급하면 채팅으로 남겨 주세요."
+          id:"reorderState",
+          topic:"reorder",
+          label:"재주문 감지",
+          value:"정기 1 · 단건 1",
+          meta:"HUD 배너",
+          detail:"정기 주문과 단건 재주문이 감지되어 배너와 프리필이 자동으로 켜집니다.",
+          actions:[{ label:"재주문 모드", action:"go", target:"./drawer.html#drawerReorder" }]
         },
         {
-          id:"points",
-          topic:"points",
-          label:"포인트/등급",
-          value:"준비 중",
-          meta:"더미 데이터",
-          detail:"포인트는 아직 더미 값이에요. 실제 연결 전까지 참고용으로만 봐 주세요."
+          id:"workflowPulse",
+          topic:"workflow",
+          label:"워크플로 펄스",
+          value:"테이블 → 브로",
+          meta:"4 STEP RUN",
+          detail:"업로드 → 소재 확정 → 파츠 조립 → 출고 확인까지 4단계를 반복 운용 중입니다.",
+          actions:[{ label:"플로우 보기", action:"scroll", target:"#workbenchFlow" }]
         }
       ],
       quickChips:[
-        { id:"chip-order-how", label:"주문 절차 알려줘", prompt:"주문은 어떻게 하나요?", topic:"orders" },
-        { id:"chip-drawer", label:"보관함 재주문", prompt:"보관함에서 다시 주문하고 싶어요", topic:"drawer" },
-        { id:"chip-backlog", label:"제작 대기", prompt:"지금 제작이 얼마나 밀려있나요?", topic:"orders" },
-        { id:"chip-keyring", label:"키링 제작 팁", prompt:"키링 제작 방법 알려줘", topic:"build" },
-        { id:"chip-open-drawer", label:"보관함 열기", action:{ type:"go", target:"./drawer.html" } }
+        { id:"chip-workbench", label:"워크벤치 줌", action:{ type:"workshop", target:"workbench" } },
+        { id:"chip-material", label:"소재 존", action:{ type:"workshop", target:"material" } },
+        { id:"chip-parts", label:"파츠 존", action:{ type:"workshop", target:"parts" } },
+        { id:"chip-production", label:"생산 라인", action:{ type:"workshop", target:"production" } },
+        { id:"chip-drawer", label:"보관 서랍", action:{ type:"go", target:"./drawer.html" } }
       ],
       initialMessages:[
-        { role:"system", label:"BRO", text:"지금 보고 계신 제작 페이지 기준으로 같이 볼게요. 막히는 부분을 편하게 말해 주세요.", topic:"orders" },
-        { role:"system", label:"TIP", text:"왼쪽 카드를 누르면 그 주제로 바로 이어서 설명하고, 아래 버튼은 빠른 질문이에요.", topic:"orders" }
+        { role:"system", label:"BRO", text:"지금 보고 있는 공방 홈 씬을 같이 훑어요. 궁금한 존이나 주문 흐름을 말해 주세요.", topic:"orders" },
+        { role:"system", label:"TIP", text:"카드나 버튼을 누르면 워크숍 노드가 즉시 전환되고, 주문 섹션으로 바로 스크롤됩니다.", topic:"orders" }
       ],
       responses:{
         keywords:[
           {
-            match:["주문","order","접수"],
-            message:"원하시는 옵션을 고르고 주문 정보를 보내주시면 주문이 정상 접수됩니다. 접수 후에는 제작 순서에 맞춰 진행돼요.",
-            meta:"주문 페이지 안내",
-            actions:[{ label:"주문 섹션으로 이동", action:"scroll", target:"#order" }]
-          },
-          {
-            match:["보관함","drawer","재주문","서랍"],
-            message:"보관함에서는 예전에 주문한 내용을 다시 불러와서 같은 내용으로 다시 주문하거나, 조금 고쳐서 다시 주문할 수 있어요.",
+            match:["워크벤치","bench","테이블"],
+            message:"메인 워크벤치 노드를 확대하고 현재 작업량과 HUD 카드 요약을 동시에 보여 드릴게요.",
+            meta:"워크벤치 안내",
             actions:[
-              { label:"보관함 열기", action:"go", target:"./drawer.html" },
-              { label:"주문 페이지로 이동", action:"go", target:"./index.html#order" }
+              { label:"워크벤치 보기", action:"workshop", target:"workbench" },
+              { label:"작업 섹션", action:"scroll", target:"#workbenchFlow" }
             ]
           },
           {
-            match:["밀려","큐","대기","progress","제작"],
-            message:"현재 제작 큐는 총 12건이며 우선 작업 4건, 일반 작업 8건으로 배분되어 있습니다. 평균 리드타임은 3~4일입니다.",
-            meta:"실제 API 연동 전 더미 데이터"
+            match:["소재","material","필름"],
+            message:"소재 존에서는 필름 두께, 코팅, 잉크 조합을 비교하면서 주문서를 채울 수 있습니다.",
+            actions:[
+              { label:"소재 존", action:"workshop", target:"material" },
+              { label:"키링 빌더", action:"scroll", target:"#keyring" }
+            ]
           },
           {
-            match:["키링","방법","guide","제작 방법"],
-            message:"키링 제작은 모양/컬러/텍스트를 선택 → 미리보기 확인 → 주문 폼 제출 순으로 진행됩니다. 빌더가 바로 옆 섹션에 열려 있습니다.",
+            match:["파츠","parts","체결"],
+            message:"파츠 존은 고리·체인·패스너 버킷을 보여 주고 서랍과 HUD 숏컷으로 이어집니다.",
             actions:[
-              { label:"키링 빌더 이동", action:"scroll", target:"#keyring" },
-              { label:"주문 폼 이동", action:"scroll", target:"#order" }
+              { label:"파츠 존", action:"workshop", target:"parts" },
+              { label:"서랍 열기", action:"go", target:"./drawer.html" }
+            ]
+          },
+          {
+            match:["생산","production","출고"],
+            message:"생산 라인은 컷/조판 경로와 QC 라이트 바로 구성되어 있고 주문 단계와 연결됩니다.",
+            actions:[
+              { label:"생산 노드", action:"workshop", target:"production" },
+              { label:"주문 섹션", action:"scroll", target:"#order" }
+            ]
+          },
+          {
+            match:["재주문","서랍","drawer"],
+            message:"보관 서랍 세 칸 모두 채워져 있어서 재주문 모드를 켜면 바로 프리필됩니다.",
+            actions:[
+              { label:"서랍 이동", action:"go", target:"./drawer.html" },
+              { label:"재주문 모드", action:"go", target:"./drawer.html#drawerReorder" }
             ]
           }
         ],
         fallback:(query, state) => ({
-          message:`아직 질문 뜻을 정확히 못 알아들었어요. 주문방법, 다시주문, 제작기간 중 어떤 게 궁금한지만 짧게 적어주시면 바로 이어서 설명해드릴게요.`,
-          meta:"쉽게 다시 안내해드릴게요"
+          message:`"${query}" 질문은 홈 HUD 문맥으로 바로 설명드릴게요. 소재/워크벤치/재주문 중 어떤 걸 보고 싶은지 말해 주세요.`,
+          meta:"홈 HUD 안내"
         })
       }
     },
@@ -333,6 +358,14 @@
       responses:{
         keywords:[
           {
+            matchRegex:/관리자.*(\d+건|\d+)|\d+.*관리자|작업 상태|현재 작업/,
+            message:"관리자 모드에서 보이는 수치는 전체 작업/주문 큐 요약이고, 일반 고객은 본인 보관함/주문 흐름만 따로 봅니다. 12건처럼 표시된 수치는 관리자가 처리 우선순위를 조정할 때만 노출돼요.",
+            actions:[
+              { label:"주문 새로고침", action:"scroll", target:"#refreshBtn" },
+              { label:"보관함 열기", action:"go", target:"./drawer.html" }
+            ]
+          },
+          {
             match:["신규","불러","새로고침","refresh"],
             message:"상단의 새로고침 버튼을 누르면 /api/admin-orders 에서 최신 100건을 다시 요청합니다.",
             actions:[{ label:"새로고침 버튼", action:"scroll", target:"#refreshBtn" }]
@@ -355,6 +388,53 @@
       }
     }
   };
+
+  const NUMBER_TOKEN_REGEX = /(\d+(?:[.,]\d+)?)/g;
+  const PRONOUN_POINTER_REGEX = /(이거|그거|저거|여기|거기|그 숫자|이 숫자|그거지|이거지)/i;
+  const GENERIC_FALLBACK_PATTERNS = [
+    /아직 질문 뜻을 정확히 못 알아들었어요/i,
+    /원하시는 옵션을/i,
+    /질문을 입력/i
+  ];
+  const CONTEXT_INTENT_HINTS = {
+    home:"작업대 흐름, 보관함, 재주문",
+    drawer:"주문 검색, 동일사양, 수정 재주문",
+    receipt:"추가 주문, 수정, 보관함",
+    admin:"신규 주문, 재주문 로그, JSON 복사",
+    default:"작업, 보관함, 재주문"
+  };
+  const CONTEXT_ACTION_FALLBACKS = {
+    home:[
+      { label:"작업 순서 보기", action:"scroll", target:"#workbenchFlow" },
+      { label:"주문 접수 이동", action:"scroll", target:"#order" },
+      { label:"보관함 열기", action:"go", target:"./drawer.html" },
+      { label:"재주문 모드", action:"go", target:"./drawer.html#drawerReorder" }
+    ],
+    drawer:[
+      { label:"검색 폼", action:"scroll", target:".drawer-search" },
+      { label:"재주문 카드", action:"scroll", target:".drawer-results" },
+      { label:"주문 페이지", action:"go", target:"./index.html#order" },
+      { label:"재주문 모드", action:"go", target:"./drawer.html#drawerReorder" }
+    ],
+    receipt:[
+      { label:"주문 페이지", action:"go", target:"./index.html" },
+      { label:"보관함 이동", action:"go", target:"./drawer.html" },
+      { label:"문의 메일", action:"go", target:"mailto:custombro365@gmail.com" }
+    ],
+    admin:[
+      { label:"주문 새로고침", action:"scroll", target:"#refreshBtn" },
+      { label:"JSON 복사", action:"scroll", target:"#copyJsonBtn" },
+      { label:"보관함 열기", action:"go", target:"./drawer.html" },
+      { label:"쇼핑몰 메인", action:"go", target:"./index.html" }
+    ],
+    default:[
+      { label:"작업대 보기", action:"scroll", target:"#workbenchFlow" },
+      { label:"보관함", action:"go", target:"./drawer.html" },
+      { label:"재주문 안내", action:"go", target:"./drawer.html#drawerReorder" }
+    ]
+  };
+  const SENTENCE_LIMIT = 3;
+  const MIN_SENTENCE_COUNT = 2;
 
   function ready(fn){
     if(document.readyState === "loading"){
@@ -392,22 +472,23 @@
     let forceScrollBottom = true;
     let lastKnownScrollTop = 0;
     const HUD_SCROLL_V7 = true;
+    let isOpen = false;
+    let focusRestoreHandle = null;
 
     function createInitialState(){
       const key = resolvePageKey();
       const preset = HUD_CONTEXTS[key] || HUD_CONTEXTS.home;
-      const summaryCards = cloneSummaryCards(preset.summaryCards);
+      const summaryCardsBase = cloneSummaryCards(preset.summaryCards);
+      const summaryCards = applyHudSignals(summaryCardsBase, key);
       const quickChips = cloneQuickChips(preset.quickChips);
-      const defaultTopic = preset.defaultTopic || getCardTopic(summaryCards[0]) || "general";
-      const topicLogs = {};
-      const initialLog = cloneChatLog(preset.initialMessages, defaultTopic);
-      topicLogs[defaultTopic] = initialLog.length ? initialLog : [{
+      const defaultTopic = preset.defaultTopic || (summaryCards[0]?.topic) || "general";
+      const initialLog = cloneChatLog(preset.initialMessages);
+      const chatLog = initialLog.length ? initialLog : [{
         role:"system",
         label:"BRO",
-        text:"브로 상태창 준비 끝. 바로 이어서 도와드릴게요.",
-        topic:defaultTopic
+        text:"브로 상태창 준비 끝. 바로 이어서 도와드릴게요."
       }];
-      const state = {
+      return {
         contextKey:key,
         contextLabel:preset.label,
         heading:preset.heading || "STATUS HUD",
@@ -415,21 +496,12 @@
         chatHint:preset.chatHint || "질문을 입력하세요.",
         summaryCards,
         quickChips,
-        topicLogs,
-        topicFollowups:{},
         responseBank:preset.responses || {},
         activeTopic:defaultTopic,
         lastActiveCardId:null,
-        isTyping:false
+        isTyping:false,
+        chatLog
       };
-      state.topicFollowups[defaultTopic] = buildDefaultFollowups(defaultTopic, state.contextKey);
-      return state;
-    }
-;
-      if(state.chatLog.length === 0){
-        state.chatLog = [{ role:"system", label:"BRO", text:"브로 상태창 준비 끝. 바로 이어서 도와드릴게요." }];
-      }
-      return state;
     }
 
     function render(){
@@ -455,6 +527,9 @@
       }
 
       forceScrollBottom = false;
+      if(isOpen){
+        focusComposerInput();
+      }
     }
 
     function attachComposer(){
@@ -465,7 +540,41 @@
         evt.preventDefault();
         submitPrompt(input.value);
         input.value = "";
+        focusComposerInput({ immediate:true });
       });
+      if(isOpen){
+        focusComposerInput({ immediate:true });
+      }
+    }
+
+    function focusComposerInput(options = {}){
+      const shouldForce = options.force || false;
+      if(!isOpen && !shouldForce){ return; }
+      const applyFocus = () => {
+        const inputEl = panel.querySelector("input[name='hudInput']");
+        if(!inputEl){ return; }
+        const len = inputEl.value.length;
+        try {
+          inputEl.focus({ preventScroll:true });
+        } catch {
+          inputEl.focus();
+        }
+        if(typeof inputEl.setSelectionRange === "function"){
+          inputEl.setSelectionRange(len, len);
+        }
+      };
+      if(options.immediate){
+        applyFocus();
+        return;
+      }
+      if(typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"){
+        if(focusRestoreHandle){
+          window.cancelAnimationFrame(focusRestoreHandle);
+        }
+        focusRestoreHandle = window.requestAnimationFrame(applyFocus);
+      } else {
+        applyFocus();
+      }
     }
 
     render();
@@ -473,7 +582,6 @@
     document.body.appendChild(launcher);
     document.body.appendChild(panel);
 
-    let isOpen = false;
 
     function open(){
       if(isOpen) return;
@@ -481,6 +589,7 @@
       panel.setAttribute("aria-hidden","false");
       launcher.setAttribute("aria-pressed","true");
       isOpen = true;
+      focusComposerInput({ force:true });
     }
 
     function close(){
@@ -489,9 +598,17 @@
       panel.setAttribute("aria-hidden","true");
       launcher.removeAttribute("aria-pressed");
       isOpen = false;
+      const input = panel.querySelector("input[name='hudInput']");
+      if(input){ input.blur(); }
     }
 
-    function toggle(){ isOpen ? close() : open(); }
+    function toggle(){
+      if(isOpen){
+        close();
+      } else {
+        open();
+      }
+    }
 
     launcher.addEventListener("click", toggle);
 
@@ -509,7 +626,10 @@
       const chip = evt.target.closest("[data-hud-chip]");
       if(chip && panel.contains(chip)){
         const prompt = chip.getAttribute("data-hud-chip");
-        if(prompt){ submitPrompt(prompt); }
+        if(prompt){
+          submitPrompt(prompt);
+          focusComposerInput();
+        }
         return;
       }
       const actionBtn = evt.target.closest("[data-hud-action]");
@@ -530,9 +650,13 @@
 
     function submitPrompt(rawValue){
       const text = (rawValue || "").trim();
-      if(!text){ return; }
+      if(!text){
+        focusComposerInput();
+        return;
+      }
       pushHudMessage({ role:"user", label:"YOU", text });
       setTyping(true);
+      focusComposerInput();
       window.setTimeout(() => {
         const response = resolveHudResponse(text, hudState);
         setTyping(false);
@@ -634,14 +758,21 @@
   function resolveHudResponse(query, state){
     const bank = state?.responseBank || {};
     const normalized = (query || "").trim().toLowerCase();
-    const previousUserMessage = Array.isArray(state?.chatLog)
-      ? [...state.chatLog].reverse().find(entry =>
-          entry &&
-          entry.role === "user" &&
-          (entry.text || "").trim() &&
-          (entry.text || "").trim().toLowerCase() !== normalized
-        )
-      : null;
+    const chatLog = Array.isArray(state?.chatLog) ? state.chatLog : [];
+    const previousUserMessage = [...chatLog].reverse().find(entry =>
+      entry && entry.role === "user" && (entry.text || "").trim() && (entry.text || "").trim().toLowerCase() !== normalized
+    ) || null;
+    const previousBotMessage = [...chatLog].reverse().find(entry =>
+      entry && entry.role !== "user" && (entry.text || "").trim()
+    ) || null;
+
+    if(!normalized){
+      return formatResponse({
+        label:"BRO",
+        message:"무엇을 도와드릴까요? 작업 시작, 보관함, 재주문 중 한 가지를 말해 주세요.",
+        meta:"기본 안내"
+      });
+    }
 
     if(/^(안녕|안녕하세요|ㅎㅇ|hello|hi)$/.test(normalized)){
       return formatResponse({
@@ -669,60 +800,47 @@
         meta:"문맥 기반 답변"
       });
     }
-    const previousUserMessage = Array.isArray(state?.chatLog)
-      ? [...state.chatLog].reverse().find(entry =>
-          entry &&
-          entry.role === "user" &&
-          (entry.text || "").trim() &&
-          (entry.text || "").trim().toLowerCase() !== normalized
-        )
-      : null;
-
-    const previousBotMessage = Array.isArray(state?.chatLog)
-      ? [...state.chatLog].reverse().find(entry =>
-          entry &&
-          entry.role !== "user" &&
-          (entry.text || "").trim()
-        )
-      : null;
-
-    if(/^(안녕|안녕하세요|ㅎㅇ|hello|hi)$/.test(normalized)){
-      return formatResponse({
-        label:"BRO",
-        message:`안녕하세요. 지금 ${state?.contextLabel || "현재 페이지"} 기준으로 같이 보고 있어요. 주문, 보관함, 재주문 중에서 어떤 걸 먼저 볼까요?`,
-        meta:"대화형 안내"
-      });
-    }
-
-    if(/^(야|있어|뭐해|헬프|help)$/.test(normalized)){
-      return formatResponse({
-        label:"BRO",
-        message:`네, 여기 있어요. ${state?.contextLabel || "현재 페이지"} 기준으로 바로 이어서 볼게요. 필요한 걸 짧게 말해 주세요.`,
-        meta:"바로 응답"
-      });
-    }
 
     if(/^(d|di|\?+|뭐야|뭐라는거야|뭐라는 거야|왜|왜 안돼|왜 안돼요|이게 뭐야|뭔 소리야)$/.test(normalized)){
-      const prevText = previousBotMessage && previousBotMessage.text ? previousBotMessage.text : "";
       const contextHint =
         state?.contextKey === "drawer" ? "주문 찾기 / 동일사양 재주문 / 수정 재주문" :
         state?.contextKey === "admin" ? "신규 주문 확인 / 재주문 건 보기 / JSON 복사" :
         state?.contextKey === "receipt" ? "추가 주문 / 수정 / 보관함 확인" :
         "주문 방법 / 보관함 / 제작 대기";
-
+      const prevText = previousBotMessage && previousBotMessage.text ? previousBotMessage.text : "";
       return formatResponse({
         label:"BRO",
         message: prevText
-          ? `좋아요. 방금 제 설명이 딱딱했어요. 쉽게 말하면 "${prevText}" 흐름에서 ${contextHint} 중 원하는 걸 바로 이어서 도와드릴 수 있다는 뜻이에요. 필요한 것만 한 단어로 말해 주세요.`
+          ? `좋아요. 방금 설명이 딱딱했어요. 쉽게 말하면 "${prevText}" 흐름에서 ${contextHint} 중 원하는 걸 바로 이어서 도와드릴 수 있다는 뜻이에요. 필요한 것만 한 단어로 말해 주세요.`
           : `좋아요. 더 쉽게 도와드릴게요. ${contextHint} 중 지금 필요한 걸 한 단어로 말해 주세요.`,
         meta:"문맥 재설명"
       });
     }
 
-    if(normalized.length -le 2 -and normalized -notmatch "[0-9]"){
+    if(/관리자.*12건.*일반.*고객/.test(normalized)){
+      const isAdminContext = state?.contextKey === "admin";
+      const adminActions = [
+        { label:"관리자 작업 새로고침", action:"scroll", target:"#refreshBtn" },
+        { label:"JSON 내보내기", action:"scroll", target:"#copyJsonBtn" },
+        { label:"고객 보관함 열기", action:"go", target:"./drawer.html" }
+      ];
+      const defaultActions = [
+        { label:"관리자 화면 이동", action:"go", target:"./admin-orders.html" },
+        { label:"고객 보관함 열기", action:"go", target:"./drawer.html" },
+        { label:"작업 플로우 보기", action:"scroll", target:"#workbenchFlow" }
+      ];
       return formatResponse({
         label:"BRO",
-        message:`짧게 보내주셔도 괜찮아요. 주문, 다시주문, 제작기간, 수정 중 하나만 적어주셔도 바로 이어서 설명해드릴게요.`,
+        message:"네, 여기에서 보이는 12건은 관리자 보드 전체 작업·주문을 합친 요약이에요. 일반 고객은 자신의 주문·보관함 흐름만 확인하고 이런 관리자 대시보드는 볼 수 없어요. 필요하면 관리자 보드에서 작업을 더 열어보거나 고객 보관함 화면으로 전환해 비교해 주세요.",
+        actions:isAdminContext ? adminActions : defaultActions,
+        meta:"관리자/고객 구분"
+      });
+    }
+
+    if(normalized.length <= 2 && !/[0-9]/.test(normalized)){
+      return formatResponse({
+        label:"BRO",
+        message:"짧게 보내주셔도 괜찮아요. 주문, 다시주문, 제작기간, 수정 중 하나만 적어주셔도 바로 이어서 설명해드릴게요.",
         meta:"짧은 입력 보정"
       });
     }
@@ -733,19 +851,25 @@
         return searchResponse;
       }
     }
+
     const keywords = Array.isArray(bank.keywords) ? bank.keywords : [];
     const matched = keywords.find(rule => matchesRule(rule, normalized));
-    let base = matched || matchSummaryCardResponse(normalized, state);
-    if(!base){
-      base = bank.fallback;
-    }
-    const response = formatResponse(base, query, state);
+    const summaryMatch = matched ? null : matchSummaryCardResponse(normalized, state);
+    const base = matched || summaryMatch || bank.fallback;
+    let response = formatResponse(base, query, state);
     if(!response.text){
-      response.text = "아직 준비되지 않은 질문이에요. 요구사항 문서를 참고해 주세요.";
+      response.text = "지금은 해당 질문을 찾지 못했어요. 주문, 보관함, 재주문 중 하나를 적어주시면 바로 안내할게요.";
     }
     if(!response.actions){
       response.actions = [];
     }
+    response = enhanceHudResponse(response, {
+      query,
+      state,
+      previousUserMessage,
+      previousBotMessage,
+      usedFallback: !matched && !summaryMatch
+    });
     return response;
   }
 
@@ -774,6 +898,259 @@
       };
     }
     return {};
+  }
+
+  function enhanceHudResponse(response, options = {}){
+    const state = options.state || {};
+    const contextKey = state.contextKey || resolvePageKey();
+    const contextLabel = state.contextLabel || "현재 페이지";
+    const cleanedOriginal = collapseWhitespace(response.text || "");
+    const intro = buildIntroSentence({
+      query:options.query,
+      state,
+      contextKey,
+      contextLabel,
+      previousUserMessage:options.previousUserMessage,
+      previousBotMessage:options.previousBotMessage,
+      usedFallback:options.usedFallback,
+      originalSentence:cleanedOriginal
+    });
+    const supporting = buildSupportingSentence({
+      originalSentence:cleanedOriginal,
+      intro,
+      contextKey,
+      contextLabel,
+      state
+    });
+    const closing = buildClosingSentence(contextKey, options.usedFallback);
+    const sentences = [];
+    if(intro){ sentences.push(intro); }
+    if(supporting && supporting !== intro){ sentences.push(supporting); }
+    if(closing && sentences.length < SENTENCE_LIMIT){ sentences.push(closing); }
+    if(sentences.length < MIN_SENTENCE_COUNT){
+      const summarySentence = buildSummarySentence(state, contextKey, contextLabel);
+      if(summarySentence && !sentences.includes(summarySentence)){
+        sentences.push(summarySentence);
+      }
+    }
+    while(sentences.length < MIN_SENTENCE_COUNT){
+      const intent = describeContextIntent(contextKey);
+      sentences.push(`${contextLabel}에서는 ${intent} 흐름으로 바로 이어서 도와드릴 수 있어요.`);
+    }
+    const directSentences = enforceDirectSentences(sentences, contextLabel, contextKey);
+    response.text = directSentences.join(" ");
+    response.actions = limitFollowupActions(response.actions, contextKey);
+    return response;
+  }
+
+  function enforceDirectSentences(items, contextLabel, contextKey){
+    const scopeHint = describeContextScope(contextKey);
+    const direct = [];
+    let scopeInjected = false;
+    for(const sentence of items){
+      const trimmed = collapseWhitespace(sentence);
+      if(!trimmed){ continue; }
+      let condensed = extractFirstSentence(trimmed);
+      if(!condensed){ continue; }
+      if(!condensed.startsWith(contextLabel)){
+        condensed = `${contextLabel} ${condensed}`;
+      }
+      if(scopeHint && !scopeInjected){
+        condensed = `${condensed} (${scopeHint})`;
+        scopeInjected = true;
+      }
+      if(!direct.includes(condensed)){
+        direct.push(condensed);
+      }
+      if(direct.length >= SENTENCE_LIMIT){ break; }
+    }
+    if(!direct.length && scopeHint){
+      direct.push(`${contextLabel} ${scopeHint}`);
+    }
+    return direct.slice(0, SENTENCE_LIMIT);
+  }
+
+  function describeContextScope(contextKey){
+    return CONTEXT_SCOPE_HINTS[contextKey] || CONTEXT_SCOPE_HINTS.default || "현재 화면 기준";
+  }
+
+  function buildIntroSentence(config){
+    return describeNumericMention(config) || describePointerReference(config) || buildContextIntroFromOriginal(config.originalSentence, config.contextLabel, config.contextKey, config.usedFallback);
+  }
+
+  function describeNumericMention(config){
+    const query = (config.query || "").trim();
+    if(!query){ return null; }
+    const matches = query.match(NUMBER_TOKEN_REGEX);
+    if(!matches){ return null; }
+    const digits = matches.map(num => num.replace(/[^\d]/g, "")).filter(Boolean);
+    if(!digits.length){ return null; }
+    const cards = Array.isArray(config.state?.summaryCards) ? config.state.summaryCards : [];
+    for(const numeric of digits){
+      const card = findCardByNumber(cards, numeric);
+      if(card){
+        return buildNumericSentence(card, numeric, config);
+      }
+    }
+    if(cards.length){
+      return buildNumericSentence(cards[0], digits[0], config);
+    }
+    return `${config.contextLabel} 기준으로 ${digits[0]}건은 전체 진행 건수를 뜻합니다.`;
+  }
+
+  function findCardByNumber(cards, numericValue){
+    if(!Array.isArray(cards)){ return null; }
+    return cards.find(card => {
+      const valueDigits = (card?.value || "").replace(/[^\d]/g, "");
+      return valueDigits && valueDigits === numericValue;
+    }) || null;
+  }
+
+  function buildNumericSentence(card, numeric, config){
+    const query = config.query || "";
+    const contextLabel = config.contextLabel;
+    const contextKey = config.contextKey;
+    const mentionAdmin = /관리자/.test(query);
+    const numberText = card.value || `${numeric}건`;
+    const scope = (mentionAdmin || contextKey === "admin")
+      ? "관리자 보드 전체 작업/주문 건수"
+      : contextKey === "drawer"
+        ? "보관함에서 다시 꺼낼 수 있는 저장 건수"
+        : contextKey === "receipt"
+          ? "방금 접수된 주문 기준 진행 상황"
+          : "현재 작업대 기준 진행 건수";
+    let suffix = "입니다.";
+    const shouldHighlightAdminScope = mentionAdmin || contextKey === "admin";
+    if(shouldHighlightAdminScope){
+      suffix = "이고 일반 고객은 본인 보관함과 주문 흐름만 확인해요.";
+    } else if(contextKey === "drawer"){
+      suffix = "이라서 동일·수정 재주문 버튼에 그대로 반영돼요.";
+    } else if(contextKey === "receipt"){
+      suffix = "이라서 완료 직후 HUD에서 다시 보여줍니다.";
+    }
+    const meta = card.meta ? ` (${card.meta})` : "";
+    return `${contextLabel}에서 ${card.label || "현재 상태"} 카드에 보이는 ${numberText}${meta}는 ${scope}${suffix}`;
+  }
+
+  function describePointerReference(config){
+    const query = config.query || "";
+    if(!PRONOUN_POINTER_REGEX.test(query)){ return null; }
+    if(config.previousBotMessage?.text){
+      const snippet = truncateSentence(config.previousBotMessage.text);
+      return `방금 안내한 "${snippet}" 흐름을 이어서 ${config.contextLabel} 기준으로 설명드리고 있어요.`;
+    }
+    if(config.previousUserMessage?.text){
+      const snippet = truncateSentence(config.previousUserMessage.text);
+      return `"${snippet}"라고 적으신 흐름을 이어서 ${config.contextLabel} 기준으로 정리해 드릴게요.`;
+    }
+    return `${config.contextLabel} 기준 직전 안내를 이어서 설명드리고 있어요.`;
+  }
+
+  function buildContextIntroFromOriginal(originalSentence, contextLabel, contextKey, usedFallback){
+    const clean = collapseWhitespace(originalSentence);
+    if(!clean || usedFallback || isGenericText(clean)){
+      const intent = describeContextIntent(contextKey);
+      return `${contextLabel} 기준으로 ${intent} 질문을 바로 처리해 드릴게요.`;
+    }
+    const firstSentence = extractFirstSentence(clean);
+    if(firstSentence.includes(contextLabel)){
+      return firstSentence;
+    }
+    return `${contextLabel} 기준으로 ${firstSentence}`;
+  }
+
+  function extractFirstSentence(text){
+    if(!text){ return ""; }
+    const normalized = collapseWhitespace(text);
+    const match = normalized.match(/.+?(?:[.!?]|다|요)(?=\s|$)/);
+    return match ? match[0] : normalized;
+  }
+
+  function buildSupportingSentence(config){
+    const clean = collapseWhitespace(config.originalSentence);
+    if(!clean || clean === config.intro || isGenericText(clean)){
+      return buildSummarySentence(config.state, config.contextKey, config.contextLabel);
+    }
+    return clean;
+  }
+
+  function buildSummarySentence(state, contextKey, contextLabel){
+    const cards = Array.isArray(state?.summaryCards) ? state.summaryCards : [];
+    const card = cards.find(item => item?.detail) || cards[0];
+    if(card && card.detail){
+      return `${card.label || "현재 상태"}는 ${card.detail}`;
+    }
+    const intent = describeContextIntent(contextKey);
+    return intent ? `${contextLabel}에서는 ${intent} 흐름으로 바로 이동할 수 있어요.` : "";
+  }
+
+  function buildClosingSentence(contextKey, usedFallback){
+    const intent = describeContextIntent(contextKey);
+    if(!intent){ return ""; }
+    return usedFallback
+      ? `${intent} 중 궁금한 쪽을 버튼으로 고르면 세부 단계를 바로 열어드릴게요.`
+      : `${intent} 흐름 중 필요한 다음 단계를 아래 버튼으로 바로 고를 수 있어요.`;
+  }
+
+  function limitFollowupActions(actions, contextKey){
+    const pool = Array.isArray(actions) ? actions.filter(Boolean) : [];
+    const unique = [];
+    const seen = new Set();
+    const addAction = action => {
+      if(!action || !action.label){ return; }
+      const signature = `${action.action || "go"}:${action.target || action.label}`;
+      if(seen.has(signature)){ return; }
+      seen.add(signature);
+      unique.push({
+        label:action.label,
+        action:action.action || "go",
+        target:action.target || ""
+      });
+    };
+    pool.forEach(addAction);
+    const fallbackByContext = CONTEXT_ACTION_FALLBACKS[contextKey] || CONTEXT_ACTION_FALLBACKS.default || [];
+    for(const action of fallbackByContext){
+      if(unique.length >= FOLLOWUP_MAX){ break; }
+      addAction(action);
+    }
+    const globalFallback = CONTEXT_ACTION_FALLBACKS.default || [];
+    for(const action of globalFallback){
+      if(unique.length >= FOLLOWUP_MAX){ break; }
+      addAction(action);
+    }
+    const reserveDefaults = [
+      { label:"작업대 보기", action:"scroll", target:"#workbenchFlow" },
+      { label:"보관함 이동", action:"go", target:"./drawer.html" },
+      { label:"재주문 안내", action:"go", target:"./drawer.html#drawerReorder" }
+    ];
+    let reserveIndex = 0;
+    while(unique.length < FOLLOWUP_MIN && reserveIndex < reserveDefaults.length){
+      addAction(reserveDefaults[reserveIndex++]);
+    }
+    while(unique.length < FOLLOWUP_MIN){
+      const fallbackLabel = `추가 안내 ${unique.length + 1}`;
+      unique.push({ label:fallbackLabel, action:"scroll", target:"#workbenchFlow" });
+    }
+    return unique.slice(0, FOLLOWUP_MAX);
+  }
+
+  function describeContextIntent(contextKey){
+    return CONTEXT_INTENT_HINTS[contextKey] || CONTEXT_INTENT_HINTS.default || "작업대/보관함/재주문";
+  }
+
+  function collapseWhitespace(text){
+    return (text || "").replace(/\s+/g, " ").trim();
+  }
+
+  function truncateSentence(text, limit = 80){
+    const clean = collapseWhitespace(text);
+    if(!clean){ return ""; }
+    return clean.length > limit ? `${clean.slice(0, limit)}…` : clean;
+  }
+
+  function isGenericText(text){
+    if(!text){ return true; }
+    return GENERIC_FALLBACK_PATTERNS.some(pattern => pattern.test(text));
   }
 
   function templateFromState(state){
@@ -850,12 +1227,31 @@
             ${chips}
           </div>
           <form class="hud-composer" autocomplete="off">
-            <input type="text" name="hudInput" placeholder="궁금한 걸 편하게 적어주세요. 제가 손님 입장에서 쉽게 설명해드릴게요" aria-label="HUD 질문 입력" />
+            <input type="text" name="hudInput" placeholder="궁금한 걸 편하게 적어주세요." aria-label="HUD 질문 입력" />
             <button type="submit" class="hud-send">전송</button>
           </form>
         </section>
       </div>
     `;
+  }
+
+  function applyHudSignals(cards, contextKey){
+    if(!Array.isArray(cards) || contextKey !== "home"){ return cards; }
+    if(typeof window === "undefined"){ return cards; }
+    const signals = window.CB_WORKBENCH_STATE;
+    if(!signals || typeof signals !== "object"){ return cards; }
+    return cards.map(card => {
+      const signal = signals[card.id];
+      if(!signal){ return card; }
+      const next = { ...card };
+      if(signal.value){ next.value = signal.value; }
+      if(signal.meta){ next.meta = signal.meta; }
+      if(signal.detail){ next.detail = signal.detail; }
+      if(Array.isArray(signal.actions)){
+        next.actions = signal.actions.map(action => ({ ...action }));
+      }
+      return next;
+    });
   }
 
   function handleAction(action, target){
@@ -871,6 +1267,9 @@
         break;
       case "refresh":
         window.location.reload();
+        break;
+      case "workshop":
+        goWorkbenchNode(target);
         break;
       default:
         break;
@@ -1003,4 +1402,63 @@
       .replace(/>/g,"&gt;")
       .replace(/"/g,"&quot;");
   }
+
+  const WORKSHOP_NODE_KEYS = ["home","material","workbench","parts","production"];
+
+  function syncSameSceneHotspots(nodeName){
+    const targetKey = normalizeWorkshopNode(nodeName);
+    const triggers = document.querySelectorAll('[data-node-trigger]');
+    triggers.forEach(trigger => {
+      const triggerKey = trigger.getAttribute('data-node-trigger');
+      const isActive = triggerKey === targetKey;
+      trigger.classList.toggle('active', isActive);
+      trigger.classList.toggle('same-scene-active', isActive);
+      trigger.setAttribute('aria-pressed', String(isActive));
+    });
+    const targets = document.querySelectorAll('[data-node-target]');
+    targets.forEach(target => {
+      const nodeKey = target.getAttribute('data-node-target');
+      const isActive = nodeKey === targetKey;
+      target.classList.toggle('active', isActive);
+      target.classList.toggle('same-scene-active', isActive);
+      target.setAttribute('data-active', String(isActive));
+      if(target.matches('button')){
+        target.setAttribute('aria-pressed', String(isActive));
+      }
+    });
+  }
+
+  function normalizeWorkshopNode(nodeName){
+    const key = (nodeName || "").toString().trim().toLowerCase();
+    return WORKSHOP_NODE_KEYS.includes(key) ? key : "home";
+  }
+
+  function goWorkbenchNode(nodeName){
+    const targetNode = normalizeWorkshopNode(nodeName);
+    if(window.CBWorkshopHero && typeof window.CBWorkshopHero.focusNode === "function"){
+      window.CBWorkshopHero.focusNode(targetNode);
+    } else if(typeof window.__cbSetWorkshopNode === "function"){
+      window.__cbSetWorkshopNode(targetNode);
+    }
+    updateWorkbenchFocus(targetNode);
+  }
+
+  function updateWorkbenchFocus(nodeName){
+    const root = document.querySelector('[data-workshop-root]');
+    const targetNode = normalizeWorkshopNode(nodeName);
+    if(root){
+      root.setAttribute('data-workshop-root', targetNode);
+    }
+    syncSameSceneHotspots(targetNode);
+  }
+
+  window.goWorkbenchNode = goWorkbenchNode;
+  window.updateWorkbenchFocus = updateWorkbenchFocus;
+
+  window.addEventListener('workshop:node-change', event => {
+    const nextNode = event && event.detail ? event.detail.node : null;
+    if(nextNode){
+      syncSameSceneHotspots(nextNode);
+    }
+  });
 })();

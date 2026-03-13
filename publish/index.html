@@ -26,51 +26,289 @@
   </header>
 
   <main class="wrap">
-    <section class="hero">
-      <div class="hero-content">
-        <p class="hero-badge">3-5일 내 제작 · 20개 이하 소량 주문 가능</p>
-        <h1>나만의 아크릴 굿즈, 지금 제작 의뢰하세요</h1>
-        <p>키링과 아크릴 POP 진열대 2종부터 시작하는 CustomBro Mall. 견적, 파일, 주문 접수까지 한 곳에서 바로 진행됩니다.</p>
-        <ul class="hero-stats">
-          <li>
-            <span>주요 고객</span>
-            <strong>카페 · 브랜드 팝업</strong>
-          </li>
-          <li>
-            <span>제작 리드타임</span>
-            <strong>평균 4.2일</strong>
-          </li>
-          <li>
-            <span>재주문 만족도</span>
-            <strong>98%</strong>
-          </li>
-        </ul>
-        <div class="hero-actions">
-          <a href="#keyring" class="btn primary">키링 커스터마이즈</a>
-          <a href="#pop" class="btn secondary">POP 진열대 살펴보기</a>
-          <a href="#order" class="btn ghost">바로 주문접수</a>
-          <a href="./drawer.html" class="btn ghost">내 보관함 열기</a>
+<section class="workshop-home" id="workshopHome" data-workshop-root="home">
+      <div class="workshop-stage" data-camera data-node="home" aria-label="공방형 2.5D 워크샵 씬">
+        <div class="stage-layer layer-sky">
+          <div class="stage-sun"></div>
+          <div class="stage-grid"></div>
+          <div class="stage-stars"></div>
+        </div>
+        <div class="stage-layer layer-buildings">
+          <button type="button" class="stage-node node-material" data-node-target="material" data-node-trigger="material">
+            <span>MATERIAL ZONE</span>
+            <strong>필름 · 코팅 랙</strong>
+            <em>두께/코팅 프리셋</em>
+          </button>
+          <button type="button" class="stage-node node-workbench" data-node-target="workbench" data-node-trigger="workbench">
+            <span>MAIN WORKBENCH</span>
+            <strong>HUD 워크테이블</strong>
+            <em>주문 HUD 동기화</em>
+          </button>
+          <button type="button" class="stage-node node-parts" data-node-target="parts" data-node-trigger="parts">
+            <span>PARTS ZONE</span>
+            <strong>체결 파츠 존</strong>
+            <em>체인 · 패스너</em>
+          </button>
+          <button type="button" class="stage-node node-production" data-node-target="production" data-node-trigger="production">
+            <span>PRODUCTION</span>
+            <strong>컷 · QC 라인</strong>
+            <em>출력/검수 플로우</em>
+          </button>
+        </div>
+        <div class="stage-layer layer-floor">
+          <div class="stage-floor"></div>
+          <div class="stage-dots"></div>
+        </div>
+        <div class="node-hotspots" role="group" aria-label="카메라 노드 선택">
+          <button class="hotspot" type="button" data-node-trigger="home">
+            <span>HOME</span>
+            <strong>전체 씬</strong>
+          </button>
+          <button class="hotspot" type="button" data-node-trigger="material">
+            <span>MATERIAL</span>
+            <strong>소재 존</strong>
+          </button>
+          <button class="hotspot" type="button" data-node-trigger="workbench">
+            <span>WORKBENCH</span>
+            <strong>메인 테이블</strong>
+          </button>
+          <button class="hotspot" type="button" data-node-trigger="parts">
+            <span>PARTS</span>
+            <strong>파츠 존</strong>
+          </button>
+          <button class="hotspot" type="button" data-node-trigger="production">
+            <span>PRODUCTION</span>
+            <strong>생산 라인</strong>
+          </button>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="hero-card">
-          <p class="hero-card-tag">실시간 제작 상태</p>
-          <h3>Keyring · POP</h3>
-          <ul>
-            <li>커스텀 이미지 업로드</li>
-            <li>수량별 자동 견적</li>
-            <li>서버 DB 주문 저장</li>
-          </ul>
-          <div class="hero-card-note">Made by CustomBro Studio</div>
+      <div class="workshop-briefing">
+        <p class="hero-badge">BRO WORKSHOP SCENE</p>
+        <h2>공방형 2.5D 워크샵 홈 1차 완성본</h2>
+        <p class="hero-lede">소재 존에서 워크벤치, 파츠 존, 생산 라인을 한 장면 안에서 훑으며 HUD 카드와 주문 섹션을 동시에 조정합니다.</p>
+        <div class="workshop-controls">
+          <button class="btn primary" type="button" data-node-trigger="workbench">워크벤치 포커스</button>
+          <button class="btn secondary" type="button" data-node-trigger="material">소재 랙 보기</button>
+          <button class="btn ghost" type="button" data-node-trigger="production">생산 라인 이동</button>
         </div>
+        <div class="node-status-grid">
+          <article class="node-status-card" data-node-target="material">
+            <header>
+              <p>MATERIAL</p>
+              <strong>필름 &amp; 코팅</strong>
+            </header>
+            <p>투명/무광 필름, UV 잉크, 코팅 옵션을 HUD와 동시에 선택합니다.</p>
+            <button type="button" data-node-trigger="material">소재 존 포커스</button>
+          </article>
+          <article class="node-status-card" data-node-target="workbench">
+            <header>
+              <p>WORKBENCH</p>
+              <strong id="stageCurrentWorkload">12건 진행 중</strong>
+            </header>
+            <p>HUD 카드와 테이블이 같은 씬에서 작동하며 현재 작업량과 최근 저장본을 띄웁니다.</p>
+            <p class="status-hint">최근 저장 <span id="stageRecentSave">키링 · POP</span></p>
+            <button type="button" data-node-trigger="workbench">워크벤치 확대</button>
+          </article>
+          <article class="node-status-card" data-node-target="parts">
+            <header>
+              <p>PARTS</p>
+              <strong>체결 파츠 존</strong>
+            </header>
+            <p>체인, 링, 패스너 버킷을 따라가며 서랍/재주문 숏컷을 노출합니다.</p>
+            <button type="button" data-node-trigger="parts">파츠 존 보기</button>
+          </article>
+          <article class="node-status-card" data-node-target="production">
+            <header>
+              <p>PRODUCTION</p>
+              <strong>컷 · QC 라인</strong>
+            </header>
+            <p>컷라인, QC 라이트, 출고 시퀀스를 HUD와 동기화해 주문 단계를 보여줍니다.</p>
+            <button type="button" data-node-trigger="production">생산 존 이동</button>
+          </article>
+        </div>
+        <div class="scene-readout">
+          <div class="readout-panel">
+            <span>CAM NODE</span>
+            <strong id="cameraStatusLabel">HOME</strong>
+            <p id="cameraStatusDetail">공방 전체를 조망하는 기본 뷰입니다.</p>
+          </div>
+          <div class="scene-legend">
+            <article>
+              <span>최근 저장</span>
+              <p id="recentWorkSummary">HUD 카드에서 최근 프로젝트를 바로 불러올 수 있어요.</p>
+            </article>
+            <article>
+              <span>서랍 상태</span>
+              <p id="reorderShortcutDetail">보관 서랍에서 꺼낸 주문은 주문 폼에 자동 채워집니다.</p>
+            </article>
+            <div class="legend-links">
+              <a class="btn secondary" href="./drawer.html#drawerRecent">최근 작업 보기</a>
+              <a class="btn ghost" href="./drawer.html#drawerReorder">재주문 모드</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workshop-zones" aria-label="공방 존 시퀀스" data-scene-grid>
+      <article class="zone-card" data-node-target="material">
+        <header>
+          <p>MATERIAL ZONE</p>
+          <strong>필름 · 코팅 · 잉크</strong>
+        </header>
+        <p>두께, 코팅, 잉크 프리셋을 비교하고 주문서 옵션에 그대로 반영합니다.</p>
+        <ul>
+          <li>두께 &amp; 코팅 프리셋</li>
+          <li>컬러 스와치 라이브러리</li>
+          <li>컷라인 추천 가이드</li>
+        </ul>
+        <footer>
+          <button class="zone-cta" type="button" data-node-trigger="material">소재 존 포커스</button>
+          <span>카메라가 소재 랙으로 슬라이드</span>
+        </footer>
+      </article>
+      <article class="zone-card" data-node-target="workbench">
+        <header>
+          <p>MAIN WORKBENCH</p>
+          <strong>가공 · HUD · 플로우</strong>
+        </header>
+        <p>카메라가 메인 테이블 중심으로 전환되며 HUD 카드와 주문 섹션을 동시에 보여줍니다.</p>
+        <div class="zone-inline">
+          <div>
+            <span>진행 건수</span>
+            <strong>HUD 싱크</strong>
+          </div>
+          <div>
+            <span>최근 저장</span>
+            <strong>키링 · POP</strong>
+          </div>
+        </div>
+        <footer>
+          <button class="zone-cta" type="button" data-node-trigger="workbench">워크벤치 확대</button>
+          <span>HUD + 주문 카드 동시 전환</span>
+        </footer>
+      </article>
+      <article class="zone-card" data-node-target="parts">
+        <header>
+          <p>PARTS ZONE</p>
+          <strong>체결 · 하드웨어</strong>
+        </header>
+        <p>파츠 랙이 순차적으로 켜지며 고리, 체인, 패스너 옵션을 보여주고 서랍 숏컷으로 연결됩니다.</p>
+        <ul>
+          <li>부품 재고 &amp; 위치</li>
+          <li>하드웨어 버킷</li>
+          <li>HUD 숏컷 연동</li>
+        </ul>
+        <footer>
+          <button class="zone-cta" type="button" data-node-trigger="parts">파츠 존 보기</button>
+          <span>서랍/재주문 숏컷 노출</span>
+        </footer>
+      </article>
+      <article class="zone-card" data-node-target="production">
+        <header>
+          <p>PRODUCTION ZONE</p>
+          <strong>출력 · QC · 출고</strong>
+        </header>
+        <p>컷라인 시뮬, QC 라이트, 출고 스케줄을 동시에 보여주며 주문 단계를 안내합니다.</p>
+        <ul>
+          <li>컷/조판 경로</li>
+          <li>QC 라이트 바</li>
+          <li>출고 스케줄</li>
+        </ul>
+        <footer>
+          <button class="zone-cta" type="button" data-node-trigger="production">생산 존 보기</button>
+          <span>출고 HUD와 연결</span>
+        </footer>
+      </article>
+    </section>
+
+
+    <section class="workbench-flow" id="workbenchFlow">
+
+      <div class="section-head">
+        <p class="eyebrow">BRO WORKBENCH</p>
+        <h2>작업대 · 재료 선반 · 이펙터 · 서랍 네 구역을 그대로 옮겼습니다</h2>
+        <p>CB Mall은 “브로의 온라인 공방”이라는 정체성을 유지합니다. 작업 테이블에서 옵션을 돌리고, 재료 선반을 확인하고, 이펙터/도구 패널을 켜고 끈 뒤, 마음에 든 시안은 보관함 서랍으로 옮깁니다.</p>
+      </div>
+      <div class="workbench-grid">
+        <article class="workbench-tile">
+          <h3>작업 테이블</h3>
+          <p>키링 · POP 빌더와 주문요약이 붙어 있는 메인 작업대입니다.</p>
+          <ul>
+            <li>견적/요약 실시간 동기화</li>
+            <li>정책 검증 HUD와 연동</li>
+            <li>작업대에서 바로 주문 접수</li>
+          </ul>
+          <button type="button" class="tile-link" data-action="start-workbench">작업대 이동</button>
+        </article>
+        <article class="workbench-tile">
+          <h3>재료 선반</h3>
+          <p>투명 아크릴, 반투명 컬러, 파츠, POP 받침 등 실제 공방에서 쓰는 재료 구성을 유지합니다.</p>
+          <ul>
+            <li>소재별 옵션 그대로 노출</li>
+            <li>화이트 인쇄 여부 즉시 확인</li>
+            <li>후가공/체인 선택 분리</li>
+          </ul>
+          <a class="tile-link" href="#keyring">재료 보기</a>
+        </article>
+        <article class="workbench-tile">
+          <h3>이펙터 · 도구 패널</h3>
+          <p>실사이즈 비교, 360º 회전, 레이어 순서 표현 등 제작 도구를 HUD에서 토글합니다.</p>
+          <ul>
+            <li>효과 상태 HUD 표시</li>
+            <li>보관함 저장 토글 포함</li>
+            <li>미리보기와 동일 화면</li>
+          </ul>
+          <button type="button" class="tile-link" data-action="start-workbench">패널 열기</button>
+        </article>
+        <article class="workbench-tile">
+          <h3>브로 제작 플로우</h3>
+          <p>테이블 받기 → 재료 올리기 → 서랍 넣기 → 브로에게 맡기기 4단계를 HUD와 주문서에 그대로 노출합니다.</p>
+          <ul>
+            <li>STEP HUD + 주문 단계 표시</li>
+            <li>보관함/재주문 CTA 상시 고정</li>
+            <li>작업 완료 후 receipt HUD 연동</li>
+          </ul>
+          <a class="tile-link" href="#order">제작 플로우 보기</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="drawer-spotlight" id="drawerSpotlight">
+      <div class="section-head">
+        <p class="eyebrow">DRAWER · REORDER</p>
+        <h2>서랍에서 최근 작업, 동일사양 재주문, 수정 재주문을 다시 끌어옵니다</h2>
+        <p>보관함(drawer)은 부가 기능이 아니라 핵심 동선입니다. 주문번호, 이름+연락처 혹은 HUD가 감지한 재주문 사양으로 바로 들어갑니다.</p>
+      </div>
+      <div class="drawer-spotlight-grid">
+        <article>
+          <h3>보관함</h3>
+          <p>장바구니 대신 서랍을 씁니다. 저장된 시안과 메모를 그대로 유지합니다.</p>
+          <a class="btn ghost" href="./drawer.html">보관함 열기</a>
+        </article>
+        <article>
+          <h3>최근 작업</h3>
+          <p>마지막 접수 건은 HUD와 메인 카드에 동시에 나타납니다. 버튼 하나로 다시 열 수 있습니다.</p>
+          <a class="btn ghost" id="drawerFocusRecent" href="./drawer.html#drawerRecent">최근 작업 찾기</a>
+        </article>
+        <article>
+          <h3>동일사양 재주문</h3>
+          <p>서랍 카드의 동일사양 버튼을 누르면 주문 폼이 자동으로 채워집니다. 수량만 조정해도 됩니다.</p>
+          <a class="btn secondary" id="drawerFocusReorder" href="./drawer.html#drawerReorder">동일사양 모드</a>
+        </article>
+        <article>
+          <h3>수정 재주문</h3>
+          <p>서랍에서 수정 모드를 고르면 텍스트/요청사항만 손보고 다시 접수할 수 있습니다. 파일 교체도 안내합니다.</p>
+          <a class="btn ghost" id="drawerFocusEdit" href="./drawer.html#drawerReorder">수정 모드</a>
+        </article>
       </div>
     </section>
 
     <section class="product-showcase">
       <div class="section-head">
-        <p class="eyebrow">BEST SELLERS</p>
-        <h2>두 가지 핵심 상품으로 시작하세요</h2>
-        <p>실제 납품 중인 옵션과 동일한 설정으로 구성했습니다. 주문 전 모든 옵션을 직접 체험해 볼 수 있습니다.</p>
+        <p class="eyebrow">REFERENCE KITS</p>
+        <h2>작업대 뒤쪽에서 기본 키트를 참고하세요</h2>
+        <p>키링과 POP은 공방형 작업대의 기본 장비입니다. 실물 옵션을 그대로 보여주되, 메인 동선을 방해하지 않도록 보조 섹션으로 배치했습니다.</p>
       </div>
       <div class="cards">
         <article class="card product-card">
@@ -321,7 +559,188 @@
     </section>
   </main>
 
+  <script>
+    (function(){
+      const workshopRoot = document.querySelector('[data-workshop-root]');
+      const cameraRig = document.querySelector('[data-camera]');
+      if(!workshopRoot || !cameraRig){ return; }
+
+      const buildingLayer = cameraRig.querySelector('.stage-layer.layer-buildings');
+      const floorLayer = cameraRig.querySelector('.stage-layer.layer-floor');
+      const readoutLabel = document.getElementById('cameraStatusLabel');
+      const readoutDetail = document.getElementById('cameraStatusDetail');
+      const hotspots = document.querySelectorAll('[data-node-trigger]');
+      const nodeTargets = document.querySelectorAll('[data-node-target]');
+      const nodes = {
+        home:{ label:'HOME ORBIT', detail:'공방 전체를 조망하는 기본 뷰입니다.', mid:{ x:0, y:0, scale:1 }, fore:{ x:0, y:0, scale:1 }, duration:560 },
+        material:{ label:'MATERIAL ZONE', detail:'필름과 코팅 샘플을 확대해 소재 선택을 돕습니다.', mid:{ x:-5, y:-3, scale:1.06 }, fore:{ x:-9, y:-4, scale:1.12 }, duration:640 },
+        workbench:{ label:'MAIN WORKBENCH', detail:'주요 작업 테이블과 HUD 카드가 동시에 강조됩니다.', mid:{ x:4, y:-1, scale:1.12 }, fore:{ x:2, y:0, scale:1.18 }, duration:720 },
+        parts:{ label:'PARTS ZONE', detail:'체결 부품 랙과 버킷이 작은 진동과 함께 켜집니다.', mid:{ x:8, y:2, scale:1.05 }, fore:{ x:11, y:4, scale:1.12 }, duration:540 },
+        production:{ label:'PRODUCTION LINE', detail:'컷/조판 라이트와 QC 레일이 따라 움직입니다.', mid:{ x:-2, y:5, scale:1.08 }, fore:{ x:-5, y:7, scale:1.14 }, duration:660 }
+      };
+      let activeKey = 'home';
+      const parallax = { x:0, y:0 };
+
+      function setNode(key, options = {}){
+        if(!nodes[key]){ key = 'home'; }
+        activeKey = key;
+        cameraRig.setAttribute('data-node', key);
+        workshopRoot.setAttribute('data-workshop-root', key);
+        updateHotspots();
+        updateNodeTargets();
+        updateReadout();
+        applyTransforms(options.instant);
+        if(options.scroll && typeof workshopRoot.scrollIntoView === 'function'){
+          workshopRoot.scrollIntoView({ behavior:'smooth', block:'start' });
+        }
+        window.dispatchEvent(new CustomEvent('workshop:node-change', { detail:{ node: activeKey } }));
+      }
+
+      function updateHotspots(){
+        hotspots.forEach(btn => {
+          const triggerKey = btn.getAttribute('data-node-trigger');
+          const isActive = triggerKey === activeKey;
+          btn.classList.toggle('active', isActive);
+          btn.classList.toggle('same-scene-active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
+        });
+      }
+
+      function updateNodeTargets(){
+        nodeTargets.forEach(target => {
+          const targetKey = target.getAttribute('data-node-target');
+          const isActive = targetKey === activeKey;
+          target.classList.toggle('active', isActive);
+          target.classList.toggle('same-scene-active', isActive);
+          target.setAttribute('data-active', String(isActive));
+          if(target.matches('button')){
+            target.setAttribute('aria-pressed', String(isActive));
+          }
+        });
+      }
+
+      function updateReadout(){
+        const preset = nodes[activeKey];
+        if(readoutLabel){ readoutLabel.textContent = preset.label; }
+        if(readoutDetail){ readoutDetail.textContent = preset.detail; }
+      }
+
+      function applyTransforms(instant){
+        const preset = nodes[activeKey];
+        if(!preset){ return; }
+        renderLayer(buildingLayer, preset.mid, 0.28, instant, preset.duration);
+        renderLayer(floorLayer, preset.fore, 0.45, instant, preset.duration);
+      }
+
+      function renderLayer(layer, cfg = {}, factor = 0.3, instant = false, duration = 600){
+        if(!layer){ return; }
+        const baseX = cfg.x || 0;
+        const baseY = cfg.y || 0;
+        const scale = cfg.scale || 1;
+        const px = parallax.x * factor;
+        const py = parallax.y * factor;
+        layer.style.transform = `translate3d(${baseX + px}%, ${baseY + py}%, 0) scale(${scale})`;
+        layer.style.transitionDuration = instant ? '0ms' : `${duration}ms`;
+      }
+
+      cameraRig.addEventListener('pointermove', evt => {
+        const rect = cameraRig.getBoundingClientRect();
+        const relX = (evt.clientX - rect.left) / rect.width;
+        const relY = (evt.clientY - rect.top) / rect.height;
+        parallax.x = (relX - 0.5) * 10;
+        parallax.y = (relY - 0.5) * 6;
+        applyTransforms();
+      });
+
+      cameraRig.addEventListener('pointerleave', () => {
+        parallax.x = 0;
+        parallax.y = 0;
+        applyTransforms(true);
+      });
+
+      hotspots.forEach(btn => {
+        btn.addEventListener('click', () => setNode(btn.getAttribute('data-node-trigger')));
+      });
+
+      nodeTargets.forEach(target => {
+        target.addEventListener('click', () => setNode(target.getAttribute('data-node-target')));
+      });
+
+      setNode(activeKey, { instant:true });
+
+      window.CBWorkshopHero = {
+        setNode: key => setNode(key),
+        focusNode: key => setNode(key, { scroll:true }),
+        getActiveNode: () => activeKey
+      };
+    })();
+  </script>
+
   <script src="./app.js"></script>
+  <script>
+    window.CB_WORKBENCH_STATE = {
+      currentWorkload: {
+        value: "12건 진행 중",
+        meta: "긴급 2 · 일반 10",
+        detail: "긴급 두 건과 일반 열 건을 HUD 관리자 보드에서 동기화했습니다.",
+        actions: [
+          { label: "작업 테이블 보기", action: "scroll", target: "#workbenchFlow" },
+          { label: "주문 접수", action: "scroll", target: "#order" }
+        ]
+      },
+      recentSave: {
+        value: "키링 · POP",
+        meta: "3분 전",
+        detail: "키링/POP 템플릿을 방금 저장했습니다. HUD 카드에서 바로 불러올 수 있어요.",
+        actions: [
+          { label: "최근 작업 열기", action: "go", target: "./drawer.html#drawerRecent" }
+        ]
+      },
+      drawerCount: {
+        value: "3건 보관",
+        meta: "재주문 바로가기",
+        detail: "보관 서랍 세 칸에 주문 요약이 채워져 있습니다. 주문 폼에 한 번에 채워 넣을 수 있어요.",
+        actions: [
+          { label: "서랍 열기", action: "go", target: "./drawer.html" }
+        ]
+      },
+      reorderState: {
+        value: "정기 1 · 단건 1",
+        meta: "HUD 감지",
+        detail: "정기 주문 한 건과 단건 재주문 한 건이 감지되어 배너가 자동으로 켜집니다.",
+        actions: [
+          { label: "재주문 모드", action: "go", target: "./drawer.html#drawerReorder" }
+        ]
+      },
+      workflowPulse: {
+        value: "테이블 → 브로",
+        meta: "4 STEP RUN",
+        detail: "디자인 업로드 → 소재 확정 → 파츠 조립 → 출고 확인까지 4단계를 반복 중입니다.",
+        actions: [
+          { label: "워크플로 보기", action: "scroll", target: "#workbenchFlow" }
+        ]
+      }
+    };
+  </script>
+  <script>
+    (function(){
+      const signals = window.CB_WORKBENCH_STATE;
+      if(!signals){ return; }
+      const bindings = [
+        { id:'stageCurrentWorkload', key:'currentWorkload', field:'value' },
+        { id:'stageRecentSave', key:'recentSave', field:'value' },
+        { id:'recentWorkSummary', key:'recentSave', field:'detail' },
+        { id:'reorderShortcutDetail', key:'reorderState', field:'detail' }
+      ];
+      bindings.forEach(binding => {
+        const target = document.getElementById(binding.id);
+        const source = signals[binding.key];
+        if(target && source && binding.field in source){
+          target.textContent = source[binding.field];
+        }
+      });
+    })();
+  </script>
   <script src="./hud.js"></script>
 </body>
 </html>
