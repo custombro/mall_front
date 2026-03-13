@@ -32,8 +32,46 @@
           <div class="stage-sun"></div>
           <div class="stage-grid"></div>
           <div class="stage-stars"></div>
+          <div class="stage-ambient stage-ambient-left"></div>
+          <div class="stage-ambient stage-ambient-right"></div>
         </div>
+
         <div class="stage-layer layer-buildings">
+          <div class="stage-shelf shelf-top-left" aria-hidden="true">
+            <span class="shelf-label">MATERIAL RACK</span>
+            <div class="shelf-bars">
+              <i></i><i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <div class="stage-shelf shelf-top-right" aria-hidden="true">
+            <span class="shelf-label">PARTS BIN</span>
+            <div class="shelf-boxes">
+              <i></i><i></i><i></i>
+            </div>
+          </div>
+
+          <div class="workbench-core" aria-hidden="true">
+            <div class="workbench-panel panel-left"></div>
+            <div class="workbench-panel panel-center"></div>
+            <div class="workbench-panel panel-right"></div>
+            <div class="workbench-glow"></div>
+            <div class="workbench-cutline cutline-a"></div>
+            <div class="workbench-cutline cutline-b"></div>
+            <div class="workbench-cutline cutline-c"></div>
+            <div class="workbench-ruler ruler-top"></div>
+            <div class="workbench-ruler ruler-left"></div>
+            <div class="qc-lamp qc-lamp-left"></div>
+            <div class="qc-lamp qc-lamp-right"></div>
+          </div>
+
+          <div class="stage-production-lane" aria-hidden="true">
+            <div class="lane-bar"></div>
+            <div class="lane-pulse lane-pulse-1"></div>
+            <div class="lane-pulse lane-pulse-2"></div>
+            <div class="lane-pulse lane-pulse-3"></div>
+          </div>
+
           <button type="button" class="stage-node node-material" data-node-target="material" data-node-trigger="material">
             <span>MATERIAL ZONE</span>
             <strong>필름 · 코팅 랙</strong>
@@ -55,10 +93,15 @@
             <em>출력/검수 플로우</em>
           </button>
         </div>
+
         <div class="stage-layer layer-floor">
           <div class="stage-floor"></div>
+          <div class="stage-floor-ring"></div>
           <div class="stage-dots"></div>
+          <div class="stage-shadow stage-shadow-left"></div>
+          <div class="stage-shadow stage-shadow-right"></div>
         </div>
+
         <div class="node-hotspots" role="group" aria-label="카메라 노드 선택">
           <button class="hotspot" type="button" data-node-trigger="home">
             <span>HOME</span>
@@ -82,15 +125,18 @@
           </button>
         </div>
       </div>
+
       <div class="workshop-briefing">
         <p class="hero-badge">BRO WORKSHOP SCENE</p>
-        <h2>공방형 2.5D 워크샵 홈 1차 완성본</h2>
-        <p class="hero-lede">소재 존에서 워크벤치, 파츠 존, 생산 라인을 한 장면 안에서 훑으며 HUD 카드와 주문 섹션을 동시에 조정합니다.</p>
+        <h2>공방형 2.5D 워크샵 홈 2차 보강본</h2>
+        <p class="hero-lede">좌측 씬에 실제 작업대, 소재 선반, 파츠 랙, 컷/QC 라인을 더해 첫 화면에서 바로 “공방” 느낌이 오도록 밀도를 올렸습니다.</p>
+
         <div class="workshop-controls">
           <button class="btn primary" type="button" data-node-trigger="workbench">워크벤치 포커스</button>
           <button class="btn secondary" type="button" data-node-trigger="material">소재 랙 보기</button>
           <button class="btn ghost" type="button" data-node-trigger="production">생산 라인 이동</button>
         </div>
+
         <div class="node-status-grid">
           <article class="node-status-card" data-node-target="material">
             <header>
@@ -100,6 +146,7 @@
             <p>투명/무광 필름, UV 잉크, 코팅 옵션을 HUD와 동시에 선택합니다.</p>
             <button type="button" data-node-trigger="material">소재 존 포커스</button>
           </article>
+
           <article class="node-status-card" data-node-target="workbench">
             <header>
               <p>WORKBENCH</p>
@@ -109,6 +156,7 @@
             <p class="status-hint">최근 저장 <span id="stageRecentSave">키링 · POP</span></p>
             <button type="button" data-node-trigger="workbench">워크벤치 확대</button>
           </article>
+
           <article class="node-status-card" data-node-target="parts">
             <header>
               <p>PARTS</p>
@@ -117,6 +165,7 @@
             <p>체인, 링, 패스너 버킷을 따라가며 서랍/재주문 숏컷을 노출합니다.</p>
             <button type="button" data-node-trigger="parts">파츠 존 보기</button>
           </article>
+
           <article class="node-status-card" data-node-target="production">
             <header>
               <p>PRODUCTION</p>
@@ -126,6 +175,7 @@
             <button type="button" data-node-trigger="production">생산 존 이동</button>
           </article>
         </div>
+
         <div class="scene-readout">
           <div class="readout-panel">
             <span>CAM NODE</span>
